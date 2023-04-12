@@ -10,4 +10,4 @@ Here I have created a simple todo application using Expo CLI & React Native tech
 
 ### Video
 
-![Demo video of the TODO-App](./video.MP4)
+![Demo video of the TODO-App](./video.mp4)
