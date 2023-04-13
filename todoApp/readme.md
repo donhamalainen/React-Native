@@ -7,7 +7,3 @@ Here I have created a simple todo application using Expo CLI & React Native tech
 1. Clone this repository
 2. Install dependencies: `npm install`or just `yarn`
 3. Run the application: `npm start` or `yarn start`
-
-### Video
-
-![Demo video of the TODO-App](./video.mp4)
