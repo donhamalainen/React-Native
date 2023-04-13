@@ -3,7 +3,6 @@ import {
   Text,
   View,
   SafeAreaView,
-  useColorScheme,
   KeyboardAvoidingView,
   Platform,
   TextInput,
@@ -11,8 +10,6 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
-import { StatusBar } from "expo-status-bar";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // COMPONENTS
 import Task from "./components/Task";
@@ -21,10 +18,6 @@ import { useEffect, useState } from "react";
 // Hook
 import { Hook } from "./Hook";
 export default function App() {
-  const colorScheme = useColorScheme();
-  const statusBarStyle =
-    colorScheme === "dark" ? "light-content" : "dark-content";
-
   const [task, setTask] = useState("");
   const [taskList, getData, addData, deleteAll, markComplated] = Hook();
 
@@ -50,7 +43,6 @@ export default function App() {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle={statusBarStyle} />
         {/* Today's Tasks */}
 
         <View style={styles.tasksWrapper}>
@@ -108,6 +100,7 @@ const styles = StyleSheet.create({
   },
   // ADD NEW TASK
   writeTaskWrapper: {
+    backgroundColor: "white",
     position: "absolute",
     bottom: 60,
     width: "100%",

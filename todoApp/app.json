@@ -3,6 +3,7 @@
     "name": "todoApp",
     "slug": "todoApp",
     "version": "1.0.0",
+    "platforms": ["ios"],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -13,12 +14,7 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true,
-      "backgroundColor": "#000000",
-      "statusBar": {
-        "backgroundColor": "#000000",
-        "style": "light-content"
-      }
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
