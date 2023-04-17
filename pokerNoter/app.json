@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "pokerNoter",
+    "slug": "pokerNoter",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "apiKey": "AIzaSyBU6nQ7sjnxAUz-t-8WhbnlvgXXfa9wi9k",
+      "authDomain": "pokernoter-c77b9.firebaseapp.com",
+      "databaseURL": "https://pokernoter-c77b9-default-rtdb.europe-west1.firebasedatabase.app",
+      "projectId": "pokernoter-c77b9",
+      "storageBucket": "pokernoter-c77b9.appspot.com",
+      "messagingSenderId": "262107942577",
+      "appId": "1:262107942577:web:f90c8e845b4806b08d9c90",
+      "measurementId": "G-8H4V67GMNL"
+    }
+  }
+}
