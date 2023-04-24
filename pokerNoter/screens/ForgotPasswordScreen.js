@@ -14,7 +14,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 // Firebase & Config
 import { sendPasswordResetEmail } from "firebase/auth";
-import { auth, database } from "../config/firebaseConfig";
+import { auth } from "../config/firebaseConfig";
 const ForgotPasswordScreen = () => {
   const [email, setEmail] = useState(null);
   // Navigointi

@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
@@ -56,8 +55,11 @@ const SignUp = async (
         await set(userRef, {
           nimi: firstName,
           sukunimi: lastName,
-          pelatutPelit: 0,
+          pelatutYhteensa: 0,
           yhteenVeto: 0,
+          pelatutPelit: {
+            aika: new Date().getTime(),
+          },
         }).then(() => {
           alert("Rekisteröinti onnistui");
           console.log("Rekisteröinti onnistui");
