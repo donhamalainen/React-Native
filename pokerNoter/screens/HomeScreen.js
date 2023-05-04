@@ -5,6 +5,9 @@ import {
   Button,
   StyleSheet,
   SafeAreaView,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import React, { useState } from "react";
 // AsyncStorage
@@ -115,22 +118,24 @@ const HomeScreen = ({ gameStatus }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Text style={styles.title}>PokerNoter</Text>
-        <Text style={styles.subtitle}>
-          Luo uusi peli tai liity olemassaolevaan
-        </Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Syötä pelin ID liittyäksesi"
-          onChangeText={(text) => setGameID(text)}
-          value={gameID}
-        />
-        <View style={styles.buttonContainer}>
-          <Button title="Luo peli" onPress={createGame} />
-          <Button title="Liity peliin" onPress={joinGame} />
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          <Text style={styles.title}>PokerNoter</Text>
+          <Text style={styles.subtitle}>
+            Luo uusi peli tai liity olemassaolevaan
+          </Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Syötä pelin ID liittyäksesi"
+            onChangeText={(text) => setGameID(text)}
+            value={gameID}
+          />
+          <View style={styles.buttonContainer}>
+            <Button title="Luo peli" onPress={createGame} />
+            <Button title="Liity peliin" onPress={joinGame} />
+          </View>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 };

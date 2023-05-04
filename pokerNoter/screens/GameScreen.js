@@ -9,43 +9,71 @@ import QRCode from "react-native-qrcode-svg";
 
 // Firebase
 import { database, auth } from "../config/firebaseConfig";
-import { ref, set, get, push } from "firebase/database";
+import { ref, set, get, push, onValue } from "firebase/database";
+
 const GameScreen = ({ gameStatus, gameID }) => {
   const [inGame, setInGame] = useState(true);
+  const [pelaajaLista, setPelaajaLista] = useState([]);
   // Handle Player End Game
   const handlePlayerEndGame = async () => {
     try {
       // Haetaan aktiivisetPelaaja lista
-      const aktiivinenPelaajalista = ref(
+      const aktiivisetRef = ref(
         database,
         `istunto/${gameID}/aktiivisetPelaajat`
       );
-      const aktiivinenPelaajalistaSnapshot = await get(aktiivinenPelaajalista);
-      const aktiivinenPelaaja = aktiivinenPelaajalistaSnapshot.val();
+      const aktiivisetSnap = await get(aktiivisetRef);
+      const aktiivisetPelaajat = Object.values(aktiivisetSnap.val());
 
-      // Haetaan poistuneetPelaajat lista
-      const poistuneetPelaajatLista = ref(
+      // Haetaan poistuneet pelaajat lista
+      const poistuneetRef = ref(
         database,
         `istunto/${gameID}/poistuneetPelaajat`
       );
-
-      /* Poistetaan pelaaja aktiivisetPelaajat listalta ja siirretään poistuneetPelaajat listaan */
-      // Tarkistaa että löytyykö pelaaja listalta
-      const pelaajaIndex = Object.values(aktiivinenPelaaja).findIndex(
-        (pelaaja) => pelaaja.id === auth.currentUser.uid
+      const playerIndex = aktiivisetPelaajat.findIndex(
+        (player) => player.id === auth.currentUser.uid
       );
-      console.log(pelaajaIndex);
-      //console.log(aktiivinenPelaaja["-NTpBu3_i34PQcVG6MsQ"]);
-      // console.log(pelaajaIndex);
-      if (pelaajaIndex >= 0) {
-        // setInGame(false)
-      } else {
-        throw new Error("Pelaajaa ei löytynyt tietokannasta");
+      // Jos pelaaja löytyy aktiivisista
+      if (playerIndex >= 0) {
+        const player = aktiivisetPelaajat[playerIndex];
+        await set(push(poistuneetRef), player); // lisätään pelaaja poistuneiden pelaajien listalle
+        aktiivisetPelaajat.splice(playerIndex, 1); // poistetaan pelaaja aktiivisista pelaajista
+        await set(aktiivisetRef, aktiivisetPelaajat); // tallennetaan päivitetty aktiivisten pelaajien lista tietokantaan
+        setInGame(false);
       }
     } catch (e) {
       console.error(e.message);
     }
   };
+  // Hae pelaaja lista
+  const getPlayers = async () => {
+    try {
+      const aktiivisetPelaajatLista = ref(
+        database,
+        `istunto/${gameID}/aktiivisetPelaajat`
+      );
+      const aktiivisetPelaajatSnapshot = await get(aktiivisetPelaajatLista);
+      const aktiivisetPelaaja = aktiivisetPelaajatSnapshot.val() || {};
+      const kaikkiPelaajat = [...Object.values(aktiivisetPelaaja)];
+      setPelaajaLista(kaikkiPelaajat);
+    } catch (e) {
+      console.error("Virhe pelaajien haussa " + e.message);
+    }
+  };
+
+  useEffect(() => {
+    getPlayers();
+    const unsub = onValue(
+      ref(database, `istunto/${gameID}/aktiivisetPelaajat`),
+      () => {
+        getPlayers();
+      }
+    );
+    return () => {
+      unsub();
+    };
+  }, [gameID]);
+
   // EndGame
   const handleEndGame = async () => {
     await AsyncStorage.clear();
@@ -62,6 +90,10 @@ const GameScreen = ({ gameStatus, gameID }) => {
         ) : (
           <Text>Olet poistunut</Text>
         )}
+        <Text>Pelaajat:</Text>
+        {pelaajaLista.map((pelaaja) => (
+          <Text key={pelaaja?.id}>{pelaaja.nimi}</Text>
+        ))}
       </View>
     </SafeAreaView>
   );
