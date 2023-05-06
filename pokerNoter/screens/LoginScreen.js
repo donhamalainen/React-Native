@@ -1,114 +1,159 @@
 import {
-  StyleSheet,
-  Text,
   View,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  Keyboard,
-  KeyboardAvoidingView,
+  Text,
   SafeAreaView,
+  KeyboardAvoidingView,
   TextInput,
+  TouchableOpacity,
+  Keyboard,
+  StyleSheet,
   Platform,
+  TouchableWithoutFeedback,
 } from "react-native";
-import React, { useState } from "react";
-import { useNavigation } from "@react-navigation/native";
-// Firebase & Config
+import React, { useContext, useState } from "react";
+// CONTEXT
+import { AuthContext } from "../context/AuthContext";
+// LOTTIE
+import LottieView from "lottie-react-native";
 // Icons
 import { MaterialCommunityIcons } from "react-native-vector-icons";
-// Firebase
-import { SignIn } from "../config/firebaseConfig";
-const LoginScreen = () => {
-  const navigation = useNavigation();
+
+const LoginScreen = ({ navigation }) => {
+  const { Login } = useContext(AuthContext);
+  // HIDE PASSWORDS
+  const [hide, setHide] = useState(true);
+  // FIELDS
   const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
-  const [hidePass, setHidePass] = useState(true);
 
-  // Register NAV
-  const handleRegisterNav = () => {
-    navigation.navigate("Register");
-  };
-  // Forgot password NAV
-  const handleForgotPassword = () => {
-    navigation.navigate("Reset");
-  };
-
-  // Sign In
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
-          <View style={styles.container}>
-            <Text style={styles.title}>PokerNoter</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Sähköpostiosoite"
-              onChangeText={(email) => setEmail(email)}
-              value={email}
-              keyboardType="email-address"
-              textContentType="emailAddress"
-              autoCapitalize="none"
-              autoCorrect={false}
-              autoComplete="email"
-            />
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.inputPass}
-                placeholder="Salasana"
-                onChangeText={(password) => setPassword(password)}
-                value={password}
-                secureTextEntry={hidePass}
-                textContentType="password"
+    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View
+            style={{
+              flex: 1,
+              paddingHorizontal: 25,
+            }}
+          >
+            {/* LOTTIE */}
+            <View style={{ flex: 1.5, justifyContent: "center" }}>
+              <LottieView
+                source={require("../assets/animations/loginLottie.json")}
+                autoPlay
+                loop={false}
+                style={{
+                  alignSelf: "center",
+                  width: 200,
+                  height: 200,
+                }}
               />
-              <TouchableOpacity
-                style={{ padding: 20, marginRight: 20 }}
-                onPress={() => setHidePass(!hidePass)}
+            </View>
+            {/* KIRJAUTUMINEN */}
+            <View style={{ flex: 1 }}>
+              <Text
+                style={{
+                  fontSize: 28,
+                  fontWeight: 500,
+                  color: "#333",
+                  marginBottom: 30,
+                }}
               >
-                {hidePass ? (
-                  <MaterialCommunityIcons name="eye-outline" size={24} />
-                ) : (
-                  <MaterialCommunityIcons name="eye-off-outline" size={24} />
-                )}
+                Kirjaudu
+              </Text>
+              <TextInput
+                style={styles.input}
+                value={email}
+                onChangeText={(email) => setEmail(email)}
+                autoCorrect={false}
+                placeholder="Sähköpostiosoite"
+                autoCapitalize="none"
+                autoComplete="email"
+                textContentType="emailAddress"
+                keyboardType="email-address"
+              />
+
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <TextInput
+                  style={[styles.input, { flex: 1 }]}
+                  value={password}
+                  onChangeText={(pass) => setPassword(pass)}
+                  secureTextEntry={hide}
+                  placeholder="Salasana"
+                  textContentType="password"
+                />
+                <TouchableOpacity onPress={() => setHide(!hide)}>
+                  {hide ? (
+                    <MaterialCommunityIcons
+                      style={styles.eye}
+                      name="eye-outline"
+                      size={24}
+                    />
+                  ) : (
+                    <MaterialCommunityIcons
+                      style={styles.eye}
+                      name="eye-off-outline"
+                      size={24}
+                    />
+                  )}
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity>
+                <Text style={{ fontSize: 12, color: "blue", marginTop: 10 }}>
+                  Unohditko salasanasi?
+                </Text>
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity onPress={handleForgotPassword}>
-              <Text
+            {/* PAINIKKEET */}
+            <View style={{ flex: 2, justifyContent: "flex-end" }}>
+              {/* Kirjaudu-painike */}
+              <TouchableOpacity
+                onPress={() => Login(email, password)}
                 style={{
-                  fontSize: 12,
-                  paddingHorizontal: 20,
-                  color: "blue",
+                  backgroundColor: "coral",
+                  padding: 20,
+                  borderRadius: 10,
                   marginBottom: 20,
                 }}
               >
-                Unohditko salasanasi?
-              </Text>
-            </TouchableOpacity>
-            <View
-              style={{
-                flexDirection: "row",
-                padding: 20,
-                justifyContent: "space-between",
-              }}
-            >
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => SignIn(email, password)}
-              >
-                <Text style={styles.buttonText}>Kirjaudu sisään</Text>
+                <Text
+                  style={{
+                    textAlign: "center",
+                    fontWeight: "700",
+                    fontSize: 16,
+                    color: "white",
+                  }}
+                >
+                  Kirjaudu
+                </Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={handleRegisterNav}
+
+              {/* Rekisteröidy-painike */}
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  marginBottom: 10,
+                }}
               >
-                <Text style={styles.buttonText}>Rekisteröidy</Text>
-              </TouchableOpacity>
+                <Text>Oletko uusi täällä?</Text>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("Register")}
+                >
+                  <Text style={{ color: "coral", fontWeight: "700" }}>
+                    {" "}
+                    Rekisteröidy
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </KeyboardAvoidingView>
-      </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -116,39 +161,12 @@ const LoginScreen = () => {
 export default LoginScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  title: {
-    position: "absolute",
-    top: 20,
-    fontSize: 48,
-    fontWeight: "bold",
-    paddingHorizontal: 20,
-  },
   input: {
     padding: 20,
     borderWidth: 2,
-    margin: 20,
+    marginVertical: 5,
   },
-  inputPass: {
-    flex: 1,
+  eye: {
     padding: 20,
-    borderWidth: 2,
-    marginLeft: 20,
-  },
-  buttonText: {
-    fontSize: 16,
-  },
-  button: {
-    borderWidth: 2,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
   },
 });

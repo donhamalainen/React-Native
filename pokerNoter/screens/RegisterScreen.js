@@ -1,148 +1,184 @@
 import {
-  StyleSheet,
-  Text,
   View,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  Keyboard,
-  KeyboardAvoidingView,
+  Text,
   SafeAreaView,
+  KeyboardAvoidingView,
   TextInput,
+  TouchableOpacity,
+  Keyboard,
+  StyleSheet,
+  Platform,
+  TouchableWithoutFeedback,
 } from "react-native";
-import React, { useState } from "react";
-// Navigation
-import { useNavigation } from "@react-navigation/native";
+import React, { useContext, useState } from "react";
+// CONTEXT
+import { AuthContext } from "../context/AuthContext";
+// LOTTIE
+import LottieView from "lottie-react-native";
 // Icons
 import { MaterialCommunityIcons } from "react-native-vector-icons";
-// Firebase
-import { SignUp } from "../config/firebaseConfig";
 
-const RegisterScreen = () => {
-  const navigation = useNavigation();
+const RegisterScreen = ({ navigation }) => {
+  const { isLoading, Register } = useContext(AuthContext);
+  const [hide, setHide] = useState(true);
+  const [confirmHide, setConfirmHide] = useState(true);
+
+  // FIELDS
   const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
   const [confirmPassword, setConfirmPassword] = useState(null);
-  const [hidePass, setHidePass] = useState(true);
-  const [hidePassConfirm, setHidePassConfirm] = useState(true);
-  const [firstName, setFirstName] = useState(null);
-  const [lastName, setLastName] = useState(null);
 
-  // Navigate
-  const handleBack = () => {
-    navigation.goBack();
-  };
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
-          <View style={styles.container}>
-            <Text style={styles.title}>PokerNoter</Text>
-            <View
-              style={{
-                flexDirection: "row",
-                marginHorizontal: 20,
-                justifyContent: "space-between",
-              }}
-            >
-              <TextInput
-                style={styles.information}
-                placeholder="Etunimi"
-                onChangeText={(name) => setFirstName(name)}
-                value={firstName}
-                textContentType="name"
-                autoCapitalize="none"
-                autoCorrect={false}
-                autoComplete="name"
-              />
-              <TextInput
-                style={styles.information}
-                placeholder="Sukunimi"
-                onChangeText={(lastName) => setLastName(lastName)}
-                value={lastName}
-                textContentType="familyName"
-                autoCapitalize="none"
-                autoCorrect={false}
-                autoComplete="name"
+    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View
+            style={{
+              flex: 1,
+              paddingHorizontal: 25,
+            }}
+          >
+            {/* LOTTIE */}
+            <View style={{ flex: 1.5, justifyContent: "center" }}>
+              <LottieView
+                source={require("../assets/animations/registerLottie.json")}
+                autoPlay
+                loop={true}
+                style={{
+                  alignSelf: "center",
+                  width: 200,
+                  height: 200,
+                }}
               />
             </View>
-            <TextInput
-              style={styles.input}
-              placeholder="Syötä sähköpostiosoite"
-              onChangeText={(email) => setEmail(email)}
-              value={email}
-              keyboardType="email-address"
-              textContentType="emailAddress"
-              autoCapitalize="none"
-              autoCorrect={false}
-              autoComplete="email"
-            />
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <TextInput
-                style={styles.inputPass}
-                placeholder="Syötä salasana"
-                onChangeText={(password) => setPassword(password)}
-                value={password}
-                secureTextEntry={hidePass}
-                textContentType="password"
-              />
-              <TouchableOpacity
-                style={{ padding: 20, marginRight: 20 }}
-                onPress={() => setHidePass(!hidePass)}
+            {/* REKISTERÖINTI */}
+            <View style={{ flex: "auto" }}>
+              <Text
+                style={{
+                  fontSize: 28,
+                  fontWeight: 500,
+                  marginBottom: 30,
+                  color: "#333",
+                }}
               >
-                {hidePass ? (
-                  <MaterialCommunityIcons name="eye-outline" size={24} />
-                ) : (
-                  <MaterialCommunityIcons name="eye-off-outline" size={24} />
-                )}
-              </TouchableOpacity>
+                Rekisteröidy
+              </Text>
+              <TextInput
+                style={styles.input}
+                value={email}
+                onChangeText={(email) => setEmail(email)}
+                autoCorrect={false}
+                placeholder="Syötä sähköpostiosoite"
+                autoCapitalize="none"
+                autoComplete="email"
+                textContentType="emailAddress"
+                keyboardType="email-address"
+              />
+
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <TextInput
+                  style={[styles.input, { flex: 1 }]}
+                  value={password}
+                  onChangeText={(pass) => setPassword(pass)}
+                  secureTextEntry={hide}
+                  placeholder="Syötä salasana"
+                  textContentType="password"
+                />
+                <TouchableOpacity onPress={() => setHide(!hide)}>
+                  {hide ? (
+                    <MaterialCommunityIcons
+                      style={styles.eye}
+                      name="eye-outline"
+                      color="black"
+                      size={24}
+                    />
+                  ) : (
+                    <MaterialCommunityIcons
+                      style={styles.eye}
+                      name="eye-off-outline"
+                      color="black"
+                      size={24}
+                    />
+                  )}
+                </TouchableOpacity>
+              </View>
+
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <TextInput
+                  style={[styles.input, { flex: 1 }]}
+                  value={confirmPassword}
+                  onChangeText={(pass) => setConfirmPassword(pass)}
+                  secureTextEntry={hide}
+                  placeholder="Syötä salasana uudelleen"
+                  textContentType="password"
+                />
+                <TouchableOpacity onPress={() => setConfirmHide(!confirmHide)}>
+                  {confirmHide ? (
+                    <MaterialCommunityIcons
+                      style={styles.eye}
+                      name="eye-outline"
+                      color="black"
+                      size={24}
+                    />
+                  ) : (
+                    <MaterialCommunityIcons
+                      style={styles.eye}
+                      name="eye-off-outline"
+                      color="black"
+                      size={24}
+                    />
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
 
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <TextInput
-                style={styles.inputPass}
-                placeholder="Syötä salasana uudelleen"
-                onChangeText={(password) => setConfirmPassword(password)}
-                value={confirmPassword}
-                secureTextEntry={hidePassConfirm}
-                textContentType="password"
-              />
+            {/* PAINIKKEET */}
+            <View style={{ flex: 2, justifyContent: "flex-end" }}>
+              {/* Kirjaudu-painike */}
               <TouchableOpacity
-                style={{ padding: 20, marginRight: 20 }}
-                onPress={() => setHidePassConfirm(!hidePassConfirm)}
+                onPress={() => Login(email, password)}
+                style={{
+                  backgroundColor: "coral",
+                  padding: 20,
+                  borderRadius: 10,
+                  marginBottom: 20,
+                }}
               >
-                {hidePassConfirm ? (
-                  <MaterialCommunityIcons name="eye-outline" size={24} />
-                ) : (
-                  <MaterialCommunityIcons name="eye-off-outline" size={24} />
-                )}
+                <Text
+                  style={{
+                    textAlign: "center",
+                    fontWeight: "700",
+                    fontSize: 16,
+                    color: "white",
+                  }}
+                >
+                  Rekisteröidy
+                </Text>
               </TouchableOpacity>
-            </View>
 
-            <View
-              style={{
-                flexDirection: "row",
-                padding: 20,
-                justifyContent: "space-between",
-              }}
-            >
-              <TouchableOpacity style={styles.button} onPress={handleBack}>
-                <Text style={styles.buttonText}>Palaa takaisin</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() =>
-                  SignUp(firstName, lastName, email, password, confirmPassword)
-                }
+              {/* Rekisteröidy-painike */}
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  marginBottom: 10,
+                }}
               >
-                <Text style={styles.buttonText}>Rekisteröidy</Text>
-              </TouchableOpacity>
+                <Text style={{ color: "black" }}>Oletko jo osa mietä?</Text>
+                <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+                  <Text style={{ color: "coral", fontWeight: "700" }}>
+                    {" "}
+                    Kirjaudu
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </KeyboardAvoidingView>
-      </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -150,42 +186,12 @@ const RegisterScreen = () => {
 export default RegisterScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  title: {
-    position: "absolute",
-    top: 20,
-    fontSize: 48,
-    fontWeight: "bold",
-    paddingHorizontal: 20,
-  },
   input: {
     padding: 20,
     borderWidth: 2,
-    marginHorizontal: 20,
     marginVertical: 5,
   },
-  information: {
-    borderWidth: 2,
-    marginVertical: 5,
+  eye: {
     padding: 20,
-    width: "48%",
-  },
-  inputPass: {
-    flex: 1,
-    padding: 20,
-    borderWidth: 2,
-    marginLeft: 20,
-    marginVertical: 5,
-  },
-  buttonText: {
-    fontSize: 16,
-  },
-  button: {
-    borderWidth: 2,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
   },
 });
