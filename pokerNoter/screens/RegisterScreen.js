@@ -24,6 +24,7 @@ const RegisterScreen = ({ navigation }) => {
   const [confirmHide, setConfirmHide] = useState(true);
 
   // FIELDS
+  const [firstName, setFirstName] = useState(null);
   const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
   const [confirmPassword, setConfirmPassword] = useState(null);
@@ -68,12 +69,19 @@ const RegisterScreen = ({ navigation }) => {
               </Text>
               <TextInput
                 style={styles.input}
+                value={firstName}
+                onChangeText={(name) => setFirstName(name)}
+                autoCorrect={false}
+                placeholder="Syötä etunimesi"
+                autoCapitalize="none"
+              />
+              <TextInput
+                style={styles.input}
                 value={email}
                 onChangeText={(email) => setEmail(email)}
                 autoCorrect={false}
                 placeholder="Syötä sähköpostiosoite"
                 autoCapitalize="none"
-                autoComplete="email"
                 textContentType="emailAddress"
                 keyboardType="email-address"
               />
@@ -167,7 +175,7 @@ const RegisterScreen = ({ navigation }) => {
                   marginBottom: 10,
                 }}
               >
-                <Text style={{ color: "black" }}>Oletko jo osa mietä?</Text>
+                <Text style={{ color: "black" }}>Oletko jo osa meitä?</Text>
                 <TouchableOpacity onPress={() => navigation.navigate("Login")}>
                   <Text style={{ color: "coral", fontWeight: "700" }}>
                     {" "}

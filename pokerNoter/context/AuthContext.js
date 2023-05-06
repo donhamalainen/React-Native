@@ -28,7 +28,17 @@ export const AuthProvider = ({ children }) => {
   };
 
   // REGISTER
-  const Register = async (firstName, email, password, confirmPassword) => {};
+  const Register = async (firstName, email, password, confirmPassword) => {
+    try {
+      if (password != confirmPassword) {
+        throw new Error("Salasanat eivät täsmää");
+      } else if (!email || !password || !confirmPassword || !firstName) {
+        throw new Error("Sinun tulee täyttää kaikki alueet");
+      }
+    } catch (e) {
+      console.error("Virhe rekisteröinnissä " + e);
+    }
+  };
   // LOGOUT
   const Logout = async () => {
     try {
