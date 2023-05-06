@@ -43,15 +43,15 @@ const RegisterScreen = ({ navigation }) => {
             }}
           >
             {/* LOTTIE */}
-            <View style={{ flex: 1.5, justifyContent: "center" }}>
+            <View style={{ flex: 1, justifyContent: "center" }}>
               <LottieView
                 source={require("../assets/animations/registerLottie.json")}
                 autoPlay
                 loop={true}
                 style={{
                   alignSelf: "center",
-                  width: 200,
-                  height: 200,
+                  width: 150,
+                  height: 150,
                 }}
               />
             </View>
