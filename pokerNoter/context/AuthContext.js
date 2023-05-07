@@ -7,6 +7,8 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
+  createUserWithEmailAndPassword,
+  UserInfo,
 } from "firebase/auth";
 export const AuthContext = createContext();
 
@@ -35,6 +37,8 @@ export const AuthProvider = ({ children }) => {
       } else if (!email || !password || !confirmPassword || !firstName) {
         throw new Error("Sinun tulee täyttää kaikki alueet");
       }
+
+      await createUserWithEmailAndPassword(auth, email, password);
     } catch (e) {
       console.error("Virhe rekisteröinnissä " + e);
     }

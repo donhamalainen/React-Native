@@ -53,7 +53,7 @@ const LoginScreen = ({ navigation }) => {
               />
             </View>
             {/* KIRJAUTUMINEN */}
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: "auto" }}>
               <Text
                 style={{
                   fontSize: 28,
@@ -101,7 +101,8 @@ const LoginScreen = ({ navigation }) => {
                   )}
                 </TouchableOpacity>
               </View>
-              <TouchableOpacity>
+
+              <TouchableOpacity onPress={() => console.log("Pressed")}>
                 <Text style={{ fontSize: 12, color: "blue", marginTop: 10 }}>
                   Unohditko salasanasi?
                 </Text>
