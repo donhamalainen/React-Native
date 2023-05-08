@@ -8,7 +8,6 @@ import {
   signInWithEmailAndPassword,
   signOut,
   createUserWithEmailAndPassword,
-  UserInfo,
 } from "firebase/auth";
 export const AuthContext = createContext();
 
@@ -59,16 +58,22 @@ export const AuthProvider = ({ children }) => {
   // isLoggedIn
   const isLoggedIn = async () => {
     setIsLoading(true);
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        setUserToken(user.uid);
-        await AsyncStorage.setItem("@userToken", user.uid);
-      } else {
-        setUserToken(null);
-        await AsyncStorage.removeItem("@userToken");
-      }
-      setIsLoading(false);
-    });
+    const storedUserToken = await AsyncStorage.getItem("@userToken");
+
+    if (storedUserToken) {
+      setUserToken(storedUserToken);
+    } else {
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          setUserToken(user.uid);
+          await AsyncStorage.setItem("@userToken", user.uid);
+        } else {
+          setUserToken(null);
+          await AsyncStorage.removeItem("@userToken");
+        }
+      });
+    }
+    setIsLoading(false);
   };
 
   useEffect(() => {
