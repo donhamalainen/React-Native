@@ -3,14 +3,15 @@ import {
   Text,
   SafeAreaView,
   KeyboardAvoidingView,
-  TextInput,
   TouchableOpacity,
-  Keyboard,
-  StyleSheet,
-  Platform,
   TouchableWithoutFeedback,
+  Keyboard,
+  Platform,
+  TextInput,
+  StyleSheet,
 } from "react-native";
 import React, { useContext, useState } from "react";
+
 // CONTEXT
 import { AuthContext } from "../context/AuthContext";
 // LOTTIE
@@ -18,16 +19,12 @@ import LottieView from "lottie-react-native";
 // Icons
 import { MaterialCommunityIcons } from "react-native-vector-icons";
 
-const LoginScreen = ({ navigation }) => {
-  const { Login } = useContext(AuthContext);
-  // HIDE PASSWORDS
-  const [hide, setHide] = useState(true);
-  // FIELDS
+const ForgetPasswordScreen = ({ navigation }) => {
+  const { resetPassword } = useContext(AuthContext);
   const [email, setEmail] = useState(null);
-  const [password, setPassword] = useState(null);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+    <SafeAreaView style={{ flex: 1 }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
@@ -42,18 +39,19 @@ const LoginScreen = ({ navigation }) => {
             {/* LOTTIE */}
             <View style={{ flex: 1.5, justifyContent: "center" }}>
               <LottieView
-                source={require("../assets/animations/loginLottie.json")}
+                source={require("../assets/animations/resetPassword.json")}
                 autoPlay
                 loop={false}
                 style={{
                   alignSelf: "center",
-                  width: 200,
-                  height: 200,
+                  width: 150,
+                  height: 150,
                 }}
               />
             </View>
-            {/* KIRJAUTUMINEN */}
-            <View style={{ flex: "auto" }}>
+
+            {/* UNOHTUIKO SALASANA? */}
+            <View style={{ flex: 0.5 }}>
               <Text
                 style={{
                   fontSize: 28,
@@ -62,58 +60,28 @@ const LoginScreen = ({ navigation }) => {
                   marginBottom: 30,
                 }}
               >
-                Kirjaudu
+                Unohtuiko salasanasi
               </Text>
+
               <TextInput
                 style={styles.input}
                 value={email}
                 onChangeText={(email) => setEmail(email)}
                 autoCorrect={false}
-                placeholder="Sähköpostiosoite"
+                placeholder="Syötä sähköpostiosoite"
                 autoCapitalize="none"
-                autoComplete="email"
                 textContentType="emailAddress"
                 keyboardType="email-address"
               />
-
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <TextInput
-                  style={[styles.input, { flex: 1 }]}
-                  value={password}
-                  onChangeText={(pass) => setPassword(pass)}
-                  secureTextEntry={hide}
-                  placeholder="Salasana"
-                  textContentType="password"
-                />
-                <TouchableOpacity onPress={() => setHide(!hide)}>
-                  {hide ? (
-                    <MaterialCommunityIcons
-                      style={styles.eye}
-                      name="eye-outline"
-                      size={24}
-                    />
-                  ) : (
-                    <MaterialCommunityIcons
-                      style={styles.eye}
-                      name="eye-off-outline"
-                      size={24}
-                    />
-                  )}
-                </TouchableOpacity>
-              </View>
-
-              <TouchableOpacity onPress={() => navigation.navigate("Forget")}>
-                <Text style={{ fontSize: 12, color: "blue", marginTop: 10 }}>
-                  Unohditko salasanasi?
-                </Text>
-              </TouchableOpacity>
             </View>
 
             {/* PAINIKKEET */}
             <View style={{ flex: 2, justifyContent: "flex-end" }}>
-              {/* Kirjaudu-painike */}
+              {/* Reset-painike */}
               <TouchableOpacity
-                onPress={() => Login(email, password)}
+                onPress={() =>
+                  resetPassword(email).then(() => navigation.goBack())
+                }
                 style={{
                   backgroundColor: "coral",
                   padding: 20,
@@ -129,11 +97,11 @@ const LoginScreen = ({ navigation }) => {
                     color: "white",
                   }}
                 >
-                  Kirjaudu
+                  Lähetä palautuspyyntö
                 </Text>
               </TouchableOpacity>
 
-              {/* Rekisteröidy-painike */}
+              {/* Palaa takaisin-painike */}
               <View
                 style={{
                   flexDirection: "row",
@@ -141,13 +109,11 @@ const LoginScreen = ({ navigation }) => {
                   marginBottom: 10,
                 }}
               >
-                <Text>Oletko uusi täällä?</Text>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate("Register")}
-                >
+                <Text>Muistuiko salasana sittenkin?</Text>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
                   <Text style={{ color: "coral", fontWeight: "700" }}>
                     {" "}
-                    Rekisteröidy
+                    Kirjaudu
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -159,15 +125,11 @@ const LoginScreen = ({ navigation }) => {
   );
 };
 
-export default LoginScreen;
-
+export default ForgetPasswordScreen;
 const styles = StyleSheet.create({
   input: {
     padding: 20,
     borderWidth: 2,
     marginVertical: 5,
-  },
-  eye: {
-    padding: 20,
   },
 });

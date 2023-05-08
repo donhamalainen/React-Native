@@ -8,6 +8,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
   createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 export const AuthContext = createContext();
 
@@ -79,8 +80,23 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     isLoggedIn();
   }, [userToken]);
+
+  // Reset Password
+  const resetPassword = async (email) => {
+    try {
+      if (!email) {
+        throw new Error("Syötä sähköpostiosoite");
+      }
+      await sendPasswordResetEmail(auth, email);
+      alert("Salasanan palautuspyyntö lähetetty sähköpostiin.");
+    } catch (e) {
+      console.error("Virhe salasanana nollauksessa " + e);
+    }
+  };
   return (
-    <AuthContext.Provider value={{ Login, Logout, isLoading, userToken }}>
+    <AuthContext.Provider
+      value={{ Login, Logout, Register, resetPassword, isLoading, userToken }}
+    >
       {children}
     </AuthContext.Provider>
   );

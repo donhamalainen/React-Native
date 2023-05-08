@@ -19,7 +19,7 @@ import LottieView from "lottie-react-native";
 import { MaterialCommunityIcons } from "react-native-vector-icons";
 
 const RegisterScreen = ({ navigation }) => {
-  const { isLoading, Register } = useContext(AuthContext);
+  const { Register } = useContext(AuthContext);
   const [hide, setHide] = useState(true);
   const [confirmHide, setConfirmHide] = useState(true);
 
@@ -145,9 +145,11 @@ const RegisterScreen = ({ navigation }) => {
 
             {/* PAINIKKEET */}
             <View style={{ flex: 2, justifyContent: "flex-end" }}>
-              {/* Kirjaudu-painike */}
+              {/* Rekisteröidy-painike */}
               <TouchableOpacity
-                onPress={() => Login(email, password)}
+                onPress={() =>
+                  Register(firstName, email, password, confirmPassword)
+                }
                 style={{
                   backgroundColor: "coral",
                   padding: 20,
