@@ -1,4 +1,4 @@
-// Import the functions you need from the SDKs you need
+// FIREBASE
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
@@ -6,8 +6,7 @@ import { getDatabase } from "firebase/database";
 // CONSTANTS
 import Constants from "expo-constants";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Config
 const firebaseConfig = {
   apiKey: "AIzaSyAaiIkmqZCZS479l-AfLERSMW0UNYdfDyg",
   authDomain: "pokernoter-e7f51.firebaseapp.com",

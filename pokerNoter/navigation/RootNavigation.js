@@ -11,6 +11,7 @@ import { AuthContext } from "../context/AuthContext";
 const RootNavigation = () => {
   const { isLoading, userToken } = useContext(AuthContext);
 
+  // LOADING...
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -18,6 +19,8 @@ const RootNavigation = () => {
       </View>
     );
   }
+
+  // MAIN...
   return (
     <NavigationContainer>
       {userToken !== null ? <AppStack /> : <AuthStack />}

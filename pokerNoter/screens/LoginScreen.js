@@ -17,7 +17,6 @@ import { AuthContext } from "../context/AuthContext";
 import LottieView from "lottie-react-native";
 // Icons
 import { MaterialCommunityIcons } from "react-native-vector-icons";
-
 const LoginScreen = ({ navigation }) => {
   const { Login } = useContext(AuthContext);
   // HIDE PASSWORDS

@@ -10,9 +10,12 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
 } from "firebase/auth";
+
+// CONTEXT
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  // VARIABLES
   const [isLoading, setIsLoading] = useState(false);
   const [userToken, setUserToken] = useState(null);
 
@@ -60,13 +63,12 @@ export const AuthProvider = ({ children }) => {
   const isLoggedIn = async () => {
     setIsLoading(true);
     const storedUserToken = await AsyncStorage.getItem("@userToken");
-
     if (storedUserToken) {
       setUserToken(storedUserToken);
     } else {
       onAuthStateChanged(auth, async (user) => {
         if (user) {
-          setUserToken(user.uid);
+          setUserToken(user);
           await AsyncStorage.setItem("@userToken", user.uid);
         } else {
           setUserToken(null);
