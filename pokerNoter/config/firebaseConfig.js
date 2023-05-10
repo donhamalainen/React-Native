@@ -1,27 +1,41 @@
 // FIREBASE
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getApp, getApps, initializeApp } from "firebase/app";
+import {
+  initializeAuth,
+  getReactNativePersistence,
+  getAuth,
+} from "firebase/auth/react-native";
 import { getDatabase } from "firebase/database";
 
 // CONSTANTS
 import Constants from "expo-constants";
-
+// ASYNC
+import AsyncStorage from "@react-native-async-storage/async-storage";
 // Config
 const firebaseConfig = {
-  apiKey: "AIzaSyAaiIkmqZCZS479l-AfLERSMW0UNYdfDyg",
-  authDomain: "pokernoter-e7f51.firebaseapp.com",
-  databaseURL:
-    "https://pokernoter-e7f51-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "pokernoter-e7f51",
-  storageBucket: "pokernoter-e7f51.appspot.com",
-  messagingSenderId: "1025585708715",
-  appId: "1:1025585708715:web:b634dd70a3a71efbdcc1ee",
-  measurementId: "G-G8HZDL350F",
+  apiKey: Constants?.manifest?.extra?.APIKEY,
+  authDomain: Constants?.manifest?.extra?.AUTHDOMAIN,
+  databaseURL: Constants?.manifest?.extra?.DATABASE_URL,
+  projectId: Constants?.manifest?.extra?.PROJECT_ID,
+  storageBucket: Constants?.manifest?.extra?.STORAGE_BUCKET,
+  messagingSenderId: Constants?.manifest?.extra?.MSI,
+  appId: Constants?.manifest?.extra?.APPID,
+  measurementId: Constants?.manifest?.extra?.MEASUREMENT_ID,
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const database = getDatabase(app);
+let app;
+let auth;
 
+if (getApps().length === 0) {
+  app = initializeApp(firebaseConfig);
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+    popupRedirectResolver: undefined,
+  });
+} else {
+  app = getApp();
+  auth = getAuth(app);
+}
+const database = getDatabase(app);
 export { auth, database };

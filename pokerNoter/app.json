@@ -23,6 +23,16 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "APIKEY": "AIzaSyAaiIkmqZCZS479l-AfLERSMW0UNYdfDyg",
+      "AUTHDOMAIN": "pokernoter-e7f51.firebaseapp.com",
+      "DATABASE_URL": "https://pokernoter-e7f51-default-rtdb.europe-west1.firebasedatabase.app",
+      "PROJECT_ID": "pokernoter-e7f51",
+      "STORAGE_BUCKET": "pokernoter-e7f51.appspot.com",
+      "MSI": "1025585708715",
+      "APPID": "1:1025585708715:web:b634dd70a3a71efbdcc1ee",
+      "MEASUREMENT_ID": "G-G8HZDL350F"
     }
   }
 }

@@ -13,12 +13,12 @@ import { AuthContext } from "../context/AuthContext";
 // ID GENERATION
 import { generate } from "shortid";
 
-const HomeScreen = ({ navigation }) => {
+const HubScreen = ({ navigation }) => {
   const { Logout } = useContext(AuthContext);
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       <View>
-        <Text>HomeScreen</Text>
+        <Text>HubScreen</Text>
         <TouchableOpacity onPress={() => Logout()}>
           <Text>Logout</Text>
         </TouchableOpacity>
@@ -27,4 +27,4 @@ const HomeScreen = ({ navigation }) => {
   );
 };
 
-export default HomeScreen;
+export default HubScreen;

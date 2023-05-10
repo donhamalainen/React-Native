@@ -8,10 +8,10 @@ import { AuthProvider } from "./context/AuthContext";
 export default function App() {
   return (
     <AuthProvider>
-      {/* STATUSBAR */}
-      <StatusBar style="auto" />
       {/* ROOT NAV */}
       <RootNavigation />
+      {/* STATUSBAR */}
+      <StatusBar style="auto" />
     </AuthProvider>
   );
 }

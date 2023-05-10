@@ -1,8 +1,6 @@
-import React, { createContext, useEffect, useState } from "react";
-// ASYNCSTORAGE
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createContext, useEffect, useState } from "react";
 // FIREBASE
-import { auth } from "../config/firebaseConfig";
+import { auth, database } from "../config/firebaseConfig";
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -10,10 +8,11 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
 } from "firebase/auth";
+import { set, ref } from "firebase/database";
 
 // CONTEXT
 export const AuthContext = createContext();
-
+// PROVIDER
 export const AuthProvider = ({ children }) => {
   // VARIABLES
   const [isLoading, setIsLoading] = useState(false);
@@ -22,13 +21,10 @@ export const AuthProvider = ({ children }) => {
   // LOGIN
   const Login = async (email, password) => {
     try {
-      await signInWithEmailAndPassword(auth, email, password).then(() => {
-        setUserToken(auth.currentUser.uid);
-        AsyncStorage.setItem("@userToken", auth.currentUser.uid);
-        setIsLoading(true);
-      });
+      await signInWithEmailAndPassword(auth, email, password);
     } catch (e) {
       console.error("Virhe sisäänkirjautumisessa " + e);
+      alert(e);
     }
   };
 
@@ -41,47 +37,31 @@ export const AuthProvider = ({ children }) => {
         throw new Error("Sinun tulee täyttää kaikki alueet");
       }
 
-      await createUserWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(auth, email, password).then(
+        (user) => {
+          // Tallennetaan tiedot
+          console.log(user.user.uid);
+          set(ref(database, `kayttajat/${user.user.uid}`), {
+            nimi: firstName,
+            sähköposti: email,
+          });
+        }
+      );
     } catch (e) {
       console.error("Virhe rekisteröinnissä " + e);
+      alert(e);
     }
   };
+
   // LOGOUT
   const Logout = async () => {
     try {
-      await signOut(auth).then(() => {
-        setUserToken(null);
-        AsyncStorage.removeItem("@userToken");
-        setIsLoading(true);
-      });
+      await signOut(auth);
     } catch (e) {
       console.error("Virhe uloskirjautumisessa " + e);
+      alert(e);
     }
   };
-
-  // isLoggedIn
-  const isLoggedIn = async () => {
-    setIsLoading(true);
-    const storedUserToken = await AsyncStorage.getItem("@userToken");
-    if (storedUserToken) {
-      setUserToken(storedUserToken);
-    } else {
-      onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          setUserToken(user);
-          await AsyncStorage.setItem("@userToken", user.uid);
-        } else {
-          setUserToken(null);
-          await AsyncStorage.removeItem("@userToken");
-        }
-      });
-    }
-    setIsLoading(false);
-  };
-
-  useEffect(() => {
-    isLoggedIn();
-  }, [userToken]);
 
   // Reset Password
   const resetPassword = async (email) => {
@@ -95,6 +75,26 @@ export const AuthProvider = ({ children }) => {
       console.error("Virhe salasanana nollauksessa " + e);
     }
   };
+
+  // isLoggedIn
+  const isLoggedIn = () => {
+    setIsLoading(true);
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserToken(user.uid);
+        // console.log(user);
+        setIsLoading(false);
+      } else {
+        setUserToken(null);
+        setIsLoading(false);
+      }
+    });
+  };
+
+  useEffect(() => {
+    isLoggedIn();
+  }, [userToken]);
+
   return (
     <AuthContext.Provider
       value={{ Login, Logout, Register, resetPassword, isLoading, userToken }}

@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 const Tab = createBottomTabNavigator();
 
 // SCREEN
-import HomeScreen from "../screens/HomeScreen";
+import HubScreen from "../screens/HubScreen";
 import StatisticsScreen from "../screens/StatisticsScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 
@@ -34,7 +34,7 @@ const AppStack = () => {
       {/* MAIN */}
       <Tab.Screen
         name="Päänäkymä"
-        component={HomeScreen}
+        component={HubScreen}
         options={{
           tabBarIcon: ({ size }) => (
             <MaterialCommunityIcons

@@ -19,7 +19,6 @@ const RootNavigation = () => {
       </View>
     );
   }
-
   // MAIN...
   return (
     <NavigationContainer>
