@@ -1,6 +1,6 @@
 import { scaleLinear } from "d3-scale";
 import { line, curveNatural } from "d3-shape";
-import { View, Dimensions } from "react-native";
+import { View, Dimensions, Text as RNText } from "react-native";
 import React, { Fragment } from "react";
 import Svg, {
   Path,
@@ -21,6 +21,21 @@ const paddingTop = 20;
 const paddingBottom = 20;
 
 const CustomGraph = ({ gameHistory }) => {
+  if (gameHistory.length === 0) {
+    return (
+      <View
+        style={{
+          paddingVertical: 20,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <RNText style={{ fontSize: 18, color: "gray" }}>
+          Sinulla ei ole pelattuja pelejä.
+        </RNText>
+      </View>
+    );
+  }
   const cumulativeGameHistory = gameHistory.reduce(
     (accumulator, currentGame, index) => {
       const previousProfit = index > 0 ? accumulator[index - 1].profit : 0;
@@ -32,21 +47,26 @@ const CustomGraph = ({ gameHistory }) => {
     },
     []
   );
+
   // Otetaan vain 10 viimeisintä peliä
   const lastTenGames = cumulativeGameHistory.slice(-10);
 
-  const xScale = scaleLinear()
-    .domain([0, lastTenGames.length - 1])
-    .range([paddingLeft + 20, graphWidth - paddingRight]);
+  const yMinValue = Math.min(...lastTenGames.map((game) => game.profit));
+  const yMaxValue = Math.max(...lastTenGames.map((game) => game.profit));
 
-  const yMin =
-    Math.floor(Math.min(...lastTenGames.map((game) => game.profit)) / 10) * 10;
-  const yMax =
-    Math.ceil(Math.max(...lastTenGames.map((game) => game.profit)) / 10) * 10;
+  const padding = Math.abs((yMaxValue - yMinValue) * 0.2); // 20% padding
 
+  const yMin = Math.min(0, yMinValue - padding);
+  const yMax = Math.max(0, yMaxValue + padding);
+
+  // SCALE
   const yScale = scaleLinear()
     .domain([yMin, yMax])
-    .range([graphHeight - paddingBottom - 20, paddingTop + 20]);
+    .range([graphHeight - paddingBottom, paddingTop + 10]);
+
+  const xScale = scaleLinear()
+    .domain([0, lastTenGames.length - 1])
+    .range([paddingLeft + 10, graphWidth - paddingRight - 40]);
 
   const d3Line = line()
     .x((game, index) => xScale(index))
@@ -55,39 +75,49 @@ const CustomGraph = ({ gameHistory }) => {
 
   const path = d3Line(lastTenGames);
   return (
-    <View
-      style={{
-        backgroundColor: "#212A3E",
-        padding: 20,
-      }}
-    >
+    <View>
       <Svg width={graphWidth} height={graphHeight}>
         <Defs>
           <LinearGradient id="gradient" x1="0" y1="0" x2="1" y2="0">
-            <Stop offset="0%" stopColor="#F1F6F9" />
+            <Stop offset="0%" stopColor="#212A3E" />
             <Stop offset="100%" stopColor="#D25380" />
           </LinearGradient>
         </Defs>
         <Path d={path} stroke="url(#gradient)" strokeWidth="2" fill="none" />
+        <Text
+          x={graphWidth / 2}
+          y={20}
+          textAnchor="end"
+          alignmentBaseline="middle"
+          fill="#212A3E"
+          fontSize="14"
+          fontWeight="bold"
+        >
+          Kumulatiivinen graaffi
+        </Text>
         {lastTenGames.map((game, index) => (
           <Fragment key={index}>
-            <Circle
-              cx={xScale(index)}
-              cy={yScale(game.profit)}
-              r="4"
-              fill={game.profit >= 0 ? "green" : "red"}
-            />
-            <Text
-              x={xScale(index)}
-              y={yScale(game.profit) - 10}
-              fontSize="10"
-              textAnchor="middle"
-              alignmentBaseline="middle"
-              fill="white"
-              fontWeight="bold"
-            >
-              {game.profit.toFixed(1)}
-            </Text>
+            {index === lastTenGames.length - 1 ? (
+              <>
+                <Circle
+                  cx={xScale(index)}
+                  cy={yScale(game.profit)}
+                  r="4"
+                  fill={game.profit >= 0 ? "green" : "red"}
+                />
+                <Text
+                  x={xScale(index)}
+                  y={yScale(game.profit) + 10}
+                  fontSize="12"
+                  textAnchor="start"
+                  alignmentBaseline="middle"
+                  fill={game.profit >= 0 ? "green" : "red"}
+                  fontWeight="bold"
+                >
+                  {game.profit.toFixed(1)}€
+                </Text>
+              </>
+            ) : null}
           </Fragment>
         ))}
         {yScale.ticks().map((tick) => (
@@ -98,7 +128,7 @@ const CustomGraph = ({ gameHistory }) => {
             fontSize="10"
             textAnchor="end"
             alignmentBaseline="middle"
-            fill="white"
+            fill="#212A3E"
           >
             {tick}
           </Text>
@@ -109,7 +139,7 @@ const CustomGraph = ({ gameHistory }) => {
           y1={paddingTop}
           x2={paddingLeft + 10}
           y2={graphHeight - paddingBottom}
-          stroke="gray"
+          stroke="#212A3E"
           strokeWidth="2"
         />
         {/* X-akselin viiva */}
@@ -118,19 +148,21 @@ const CustomGraph = ({ gameHistory }) => {
           y1={graphHeight - paddingBottom}
           x2={graphWidth - paddingRight}
           y2={graphHeight - paddingBottom}
-          stroke="gray"
+          stroke="#212A3E"
           strokeWidth="2"
         />
         {/* Nollakohdan viiva */}
-        <Line
-          x1={paddingLeft + 10}
-          y1={yScale(0)}
-          x2={graphWidth - paddingRight}
-          y2={yScale(0)}
-          stroke="gray"
-          strokeWidth="1"
-          strokeDasharray="4, 4"
-        />
+        {yMin < 0 && yMax > 0 ? (
+          <Line
+            x1={paddingLeft + 10}
+            y1={yScale(0)}
+            x2={graphWidth - paddingRight}
+            y2={yScale(0)}
+            stroke="gray"
+            strokeWidth="1"
+            strokeDasharray="2, 4"
+          />
+        ) : null}
       </Svg>
     </View>
   );
