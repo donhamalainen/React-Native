@@ -8,7 +8,7 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
 } from "firebase/auth";
-import { ref, onValue } from "firebase/database";
+import { set, ref, onValue } from "firebase/database";
 
 // CONTEXT
 export const AuthContext = createContext();
