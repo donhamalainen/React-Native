@@ -16,8 +16,6 @@ import React, { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 // LOTTIE
 import LottieView from "lottie-react-native";
-// Icons
-import { MaterialCommunityIcons } from "react-native-vector-icons";
 
 const ForgetPasswordScreen = ({ navigation }) => {
   const { resetPassword } = useContext(AuthContext);

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 // Navigation TAB
 const Tab = createBottomTabNavigator();
@@ -10,7 +10,6 @@ import ProfileScreen from "../screens/ProfileScreen";
 
 // Icons
 import { MaterialCommunityIcons } from "react-native-vector-icons";
-
 const AppStack = () => {
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>

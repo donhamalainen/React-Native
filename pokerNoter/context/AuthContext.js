@@ -8,7 +8,7 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
 } from "firebase/auth";
-import { set, ref } from "firebase/database";
+import { ref, onValue } from "firebase/database";
 
 // CONTEXT
 export const AuthContext = createContext();
@@ -17,6 +17,35 @@ export const AuthProvider = ({ children }) => {
   // VARIABLES
   const [isLoading, setIsLoading] = useState(false);
   const [userToken, setUserToken] = useState(null);
+  const [data, setData] = useState(null);
+
+  const fetchData = async (uid) => {
+    const dataRef = ref(database, `kayttajat/${uid}`);
+    onValue(dataRef, (snap) => {
+      const data = snap.val();
+      //console.log(Object.values(data));
+      setData(data);
+    });
+  };
+
+  // isLoggedIn
+  const isLoggedIn = () => {
+    setIsLoading(true);
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserToken(user.uid);
+        fetchData(user.uid);
+      } else {
+        setUserToken(null);
+        setData(null);
+      }
+      setIsLoading(false);
+    });
+  };
+
+  useEffect(() => {
+    isLoggedIn();
+  }, []);
 
   // LOGIN
   const Login = async (email, password) => {
@@ -76,28 +105,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // isLoggedIn
-  const isLoggedIn = () => {
-    setIsLoading(true);
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserToken(user.uid);
-        // console.log(user);
-        setIsLoading(false);
-      } else {
-        setUserToken(null);
-        setIsLoading(false);
-      }
-    });
-  };
-
-  useEffect(() => {
-    isLoggedIn();
-  }, [userToken]);
-
   return (
     <AuthContext.Provider
-      value={{ Login, Logout, Register, resetPassword, isLoading, userToken }}
+      value={{
+        Login,
+        Logout,
+        Register,
+        resetPassword,
+        isLoading,
+        userToken,
+        data,
+      }}
     >
       {children}
     </AuthContext.Provider>

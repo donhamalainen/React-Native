@@ -1,12 +1,14 @@
 import { View, Text, SafeAreaView } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
+// Context
+import { AuthContext } from "../context/AuthContext";
 // CustomGraph
 import CustomGraph from "../components/CustomGraph";
 
 // Firebase
 import { database, auth } from "../config/firebaseConfig";
-import { ref, onValue, get } from "firebase/database";
+import { ref, onValue } from "firebase/database";
 
 /*
 const testGameData = [
@@ -36,27 +38,22 @@ const testGameData = [
 const StatisticsScreen = () => {
   // Variables
   const [peliHistoria, setPeliHistoria] = useState([]);
+  const { data } = useContext(AuthContext);
 
-  // Haetaan firebase Data
-  const fetchGameHistory = async () => {
-    const gameHistoryRef = ref(
-      database,
-      `kayttajat/${auth.currentUser.uid}/peliHistoria`
-    );
-    onValue(gameHistoryRef, (snap) => {
-      const data = snap.val();
-      // console.log(Object.values(data));
-      setPeliHistoria(Object.values(data));
-    });
-  };
   useEffect(() => {
-    fetchGameHistory();
-  }, []);
+    if (data && data.peliHistoria) {
+      setPeliHistoria(Object.values(data.peliHistoria));
+    }
+  }, [data]);
 
-  // Voittoprosentti laskenta
+  // LASKENTOJA
+  // VAKIO HAKEE PROFIITIT
+  const profit = peliHistoria.map((game) => game.profit);
+
   const pelatutPelit = peliHistoria.length;
   const voitetutPelit = peliHistoria.filter((game) => game.profit > 0).length;
-  const voittoProsentti = (voitetutPelit / pelatutPelit) * 100;
+  const voittoProsentti = ((voitetutPelit / pelatutPelit) * 100).toFixed(1);
+  const isoinVoitto = Math.max(...profit);
   //console.log(voittoProsentti);
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -68,11 +65,46 @@ const StatisticsScreen = () => {
       >
         <View
           style={{
-            flex: 1,
+            padding: 20,
+            marginBottom: 20,
             backgroundColor: "#212A3E",
             borderRadius: 20,
           }}
-        ></View>
+        >
+          {/* Pelatut pelit */}
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <Text style={{ color: "white", fontSize: 18 }}>Olet pelannut</Text>
+            <Text style={{ color: "white", fontWeight: "bold", fontSize: 18 }}>
+              {pelatutPelit} peliä
+            </Text>
+          </View>
+          {/* Voittoprosentti */}
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              marginVertical: 10,
+            }}
+          >
+            <Text style={{ color: "white", fontSize: 18 }}>
+              Voittoprosentti
+            </Text>
+            <Text style={{ color: "white", fontWeight: "bold", fontSize: 18 }}>
+              {voittoProsentti}%
+            </Text>
+          </View>
+          {/* isoinVoitto */}
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <Text style={{ color: "white", fontSize: 18 }}>Isoin voittosi</Text>
+            <Text style={{ color: "white", fontWeight: "bold", fontSize: 18 }}>
+              {isoinVoitto} €
+            </Text>
+          </View>
+        </View>
         <View style={{ flex: 2 }}>
           <CustomGraph gameHistory={peliHistoria} />
         </View>
