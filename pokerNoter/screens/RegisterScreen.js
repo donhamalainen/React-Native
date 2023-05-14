@@ -13,7 +13,7 @@ import {
 import React, { useContext, useState } from "react";
 // CONTEXT
 import { AuthContext } from "../context/AuthContext";
-// LOTTIE
+// LOTTIE, TÄSSÄ ON BUGI ANDROIDILLE
 import LottieView from "lottie-react-native";
 // Icons
 import { MaterialCommunityIcons } from "react-native-vector-icons";
@@ -42,21 +42,8 @@ const RegisterScreen = ({ navigation }) => {
               paddingHorizontal: 25,
             }}
           >
-            {/* LOTTIE */}
-            <View style={{ flex: 1, justifyContent: "center" }}>
-              <LottieView
-                source={require("../assets/animations/registerLottie.json")}
-                autoPlay
-                loop={true}
-                style={{
-                  alignSelf: "center",
-                  width: 150,
-                  height: 150,
-                }}
-              />
-            </View>
             {/* REKISTERÖINTI */}
-            <View style={{ flex: "auto" }}>
+            <View>
               <Text
                 style={{
                   fontSize: 28,
@@ -177,10 +164,9 @@ const RegisterScreen = ({ navigation }) => {
                   marginBottom: 10,
                 }}
               >
-                <Text style={{ color: "black" }}>Oletko jo osa meitä?</Text>
+                <Text style={{ color: "black" }}>Oletko jo osa meitä? </Text>
                 <TouchableOpacity onPress={() => navigation.navigate("Login")}>
                   <Text style={{ color: "coral", fontWeight: "700" }}>
-                    {" "}
                     Kirjaudu
                   </Text>
                 </TouchableOpacity>

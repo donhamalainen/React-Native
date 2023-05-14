@@ -35,6 +35,20 @@ const CustomGraph = ({ gameHistory }) => {
         </RNText>
       </View>
     );
+  } else if (gameHistory.length < 2) {
+    return (
+      <View
+        style={{
+          paddingVertical: 20,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <RNText style={{ fontSize: 18, color: "gray" }}>
+          Sinulla tulee olla vähintään kaksi peliä.
+        </RNText>
+      </View>
+    );
   }
   const cumulativeGameHistory = gameHistory.reduce(
     (accumulator, currentGame, index) => {

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 // Navigation TAB
 const Tab = createBottomTabNavigator();
@@ -7,59 +7,91 @@ const Tab = createBottomTabNavigator();
 import HubScreen from "../screens/HubScreen";
 import StatisticsScreen from "../screens/StatisticsScreen";
 import ProfileScreen from "../screens/ProfileScreen";
-
+import GameScreen from "../screens/GameScreen";
 // Icons
 import { MaterialCommunityIcons } from "react-native-vector-icons";
+
 const AppStack = () => {
+  const [gameOnline, setGameOnline] = useState(null);
+
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
-      {/* ALOITUSNÄKYMÄ */}
-      <Tab.Screen
-        name="Aloitusnäkymä"
-        component={StatisticsScreen}
-        options={{
-          tabBarIcon: ({ size }) => (
-            <MaterialCommunityIcons
-              name="chart-areaspline"
-              size={size}
-              color="white"
-            />
-          ),
-          tabBarStyle: { backgroundColor: "#212A3E" },
-          tabBarLabelStyle: { color: "white" },
-          tabBarShowLabel: false,
-        }}
-      />
-      {/* MAIN */}
-      <Tab.Screen
-        name="Päänäkymä"
-        component={HubScreen}
-        options={{
-          tabBarIcon: ({ size }) => (
-            <MaterialCommunityIcons
-              name="plus-box"
-              size={size + 20}
-              color="white"
-            />
-          ),
-          tabBarStyle: { backgroundColor: "#212A3E" },
-          tabBarLabelStyle: { color: "white" },
-          tabBarShowLabel: false,
-        }}
-      />
-      {/* PROFIILI */}
-      <Tab.Screen
-        name="Profiili"
-        component={ProfileScreen}
-        options={{
-          tabBarIcon: ({ size }) => (
-            <MaterialCommunityIcons name="account" size={size} color="white" />
-          ),
-          tabBarStyle: { backgroundColor: "#212A3E" },
-          tabBarLabelStyle: { color: "white" },
-          tabBarShowLabel: false,
-        }}
-      />
+      {gameOnline === null ? (
+        <>
+          {/* ALOITUSNÄKYMÄ */}
+          <Tab.Screen
+            name="Aloitusnäkymä"
+            component={StatisticsScreen}
+            options={{
+              tabBarIcon: ({ size }) => (
+                <MaterialCommunityIcons
+                  name="chart-areaspline"
+                  size={size}
+                  color="white"
+                />
+              ),
+              tabBarStyle: { backgroundColor: "#212A3E" },
+              tabBarLabelStyle: { color: "white" },
+              tabBarShowLabel: false,
+            }}
+          />
+          {/* MAIN */}
+          <Tab.Screen
+            name="Päänäkymä"
+            options={{
+              tabBarIcon: ({ size }) => (
+                <MaterialCommunityIcons
+                  name="plus-box"
+                  size={size + 20}
+                  color="white"
+                />
+              ),
+              tabBarStyle: { backgroundColor: "#212A3E" },
+              tabBarLabelStyle: { color: "white" },
+              tabBarShowLabel: false,
+            }}
+          >
+            {() => <HubScreen GameOnline={setGameOnline} />}
+          </Tab.Screen>
+          {/* PROFIILI */}
+          <Tab.Screen
+            name="Profiili"
+            component={ProfileScreen}
+            options={{
+              tabBarIcon: ({ size }) => (
+                <MaterialCommunityIcons
+                  name="account"
+                  size={size}
+                  color="white"
+                />
+              ),
+              tabBarStyle: { backgroundColor: "#212A3E" },
+              tabBarLabelStyle: { color: "white" },
+              tabBarShowLabel: false,
+            }}
+          />
+        </>
+      ) : (
+        <>
+          <Tab.Screen
+            name="Game"
+            options={{
+              tabBarIcon: ({ size }) => (
+                <MaterialCommunityIcons
+                  name="poker-chip"
+                  size={size}
+                  color="white"
+                />
+              ),
+              tabBarStyle: { backgroundColor: "#212A3E" },
+              tabBarLabelStyle: { color: "white" },
+              tabBarShowLabel: false,
+            }}
+          >
+            {() => <GameScreen GameOnline={setGameOnline} />}
+          </Tab.Screen>
+        </>
+      )}
     </Tab.Navigator>
   );
 };

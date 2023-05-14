@@ -1,5 +1,12 @@
 import React, { useContext } from "react";
-import { View, ActivityIndicator } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Platform,
+  View,
+  StatusBar,
+} from "react-native";
+
 // NAVIGATION
 import { NavigationContainer } from "@react-navigation/native";
 import AuthStack from "./AuthStack";
@@ -22,9 +29,18 @@ const RootNavigation = () => {
   // MAIN...
   return (
     <NavigationContainer>
-      {userToken !== null ? <AppStack /> : <AuthStack />}
+      <View style={styles.container}>
+        {userToken !== null ? <AppStack /> : <AuthStack />}
+      </View>
     </NavigationContainer>
   );
 };
 
 export default RootNavigation;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: Platform.OS === "ios" ? 0 : StatusBar.currentHeight,
+  },
+});

@@ -40,7 +40,7 @@ const LoginScreen = ({ navigation }) => {
             }}
           >
             {/* LOTTIE */}
-            <View style={{ flex: 1.5, justifyContent: "center" }}>
+            <View style={{ flex: 1, justifyContent: "center" }}>
               <LottieView
                 source={require("../assets/animations/loginLottie.json")}
                 autoPlay
@@ -53,7 +53,7 @@ const LoginScreen = ({ navigation }) => {
               />
             </View>
             {/* KIRJAUTUMINEN */}
-            <View style={{ flex: "auto" }}>
+            <View>
               <Text
                 style={{
                   fontSize: 28,
@@ -108,9 +108,8 @@ const LoginScreen = ({ navigation }) => {
                 </Text>
               </TouchableOpacity>
             </View>
-
             {/* PAINIKKEET */}
-            <View style={{ flex: 2, justifyContent: "flex-end" }}>
+            <View style={{ flex: 1.5, justifyContent: "flex-end" }}>
               {/* Kirjaudu-painike */}
               <TouchableOpacity
                 onPress={() => Login(email, password)}

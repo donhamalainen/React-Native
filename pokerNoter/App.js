@@ -1,4 +1,3 @@
-import React from "react";
 import { StatusBar } from "expo-status-bar";
 // ROOT NAV
 import RootNavigation from "./navigation/RootNavigation";
