@@ -118,24 +118,26 @@ export const AuthProvider = ({ children }) => {
 
   // LOGOUT
   const Logout = async () => {
-    try {
-      await signOut(auth);
-    } catch (e) {
-      console.error("Virhe uloskirjautumisessa " + e);
-      alert(e);
-    }
+    await signOut(auth).catch((err) => {
+      Alert.alert("Virhe", err.message);
+    });
   };
 
   // Reset Password
   const resetPassword = async (email) => {
-    try {
-      if (!email) {
-        throw new Error("Syötä sähköpostiosoite");
-      }
-      await sendPasswordResetEmail(auth, email);
-      alert("Salasanan palautuspyyntö lähetetty sähköpostiin.");
-    } catch (e) {
-      console.error("Virhe salasanana nollauksessa " + e);
+    if (!email) {
+      Alert.alert("Virhe", "Syötä sähköpostiosoite");
+    } else {
+      await sendPasswordResetEmail(auth, email)
+        .then(() => {
+          Alert.alert(
+            "Onnistui",
+            "Salasanan palautuspyyntö lähetetty sähköpostiin"
+          );
+        })
+        .catch((err) => {
+          Alert.alert("Virhe", err.message);
+        });
     }
   };
 

@@ -106,7 +106,7 @@ const RegisterScreen = ({ navigation }) => {
                   style={[styles.input, { flex: 1 }]}
                   value={confirmPassword}
                   onChangeText={(pass) => setConfirmPassword(pass)}
-                  secureTextEntry={hide}
+                  secureTextEntry={confirmHide}
                   placeholder="Syötä salasana uudelleen"
                   textContentType="password"
                 />
@@ -186,6 +186,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderWidth: 2,
     marginVertical: 5,
+    borderRadius: 10,
   },
   eye: {
     padding: 20,

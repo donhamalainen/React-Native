@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 // Navigation TAB
 const Tab = createBottomTabNavigator();
@@ -10,9 +10,26 @@ import ProfileScreen from "../screens/ProfileScreen";
 import GameScreen from "../screens/GameScreen";
 // Icons
 import { MaterialCommunityIcons } from "react-native-vector-icons";
+// AsyncStorage
+import AsyncStorage from "@react-native-async-storage/async-storage";
+// Alert
+import { Alert } from "react-native";
 
 const AppStack = () => {
   const [gameOnline, setGameOnline] = useState(null);
+
+  // Check if the user already in the online
+  useEffect(() => {
+    AsyncStorage.getItem("@game")
+      .then((gameId) => {
+        if (gameId) {
+          setGameOnline(gameId);
+        }
+      })
+      .catch((err) => {
+        Alert.alert("Virhe", err.message);
+      });
+  }, []);
 
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>

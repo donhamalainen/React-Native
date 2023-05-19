@@ -20,11 +20,20 @@ const StatisticsScreen = () => {
   // LASKENTOJA
   // VAKIO HAKEE PROFIITIT
   const profit = peliHistoria.map((game) => game.profit);
-
   const pelatutPelit = peliHistoria.length;
   const voitetutPelit = peliHistoria.filter((game) => game.profit > 0).length;
-  const voittoProsentti = ((voitetutPelit / pelatutPelit) * 100).toFixed(1);
-  const isoinVoitto = Math.max(...profit);
+  let voittoProsentti;
+  let isoinVoitto;
+
+  // JOS pelejä on 0, niin näytetään oletusarvot
+  if (pelatutPelit > 0) {
+    voittoProsentti = ((voitetutPelit / pelatutPelit) * 100).toFixed(1);
+    isoinVoitto = Math.max(...profit);
+  } else {
+    voittoProsentti = 100;
+    isoinVoitto = 0;
+  }
+
   //console.log(voittoProsentti);
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
