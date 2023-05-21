@@ -5,23 +5,21 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
-  Dimensions,
   Modal,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 // Icons
-import { MaterialCommunityIcons } from "react-native-vector-icons";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 // QRCode
 import QRCode from "react-native-qrcode-svg";
 // AsyncStorage
 import AsyncStorage from "@react-native-async-storage/async-storage";
 // Firebase
 import { database, auth } from "../config/firebaseConfig";
-import { get, ref, remove, set, onValue, off, update } from "firebase/database";
+import { get, ref, remove, set, onValue, update } from "firebase/database";
 
-const GameScreen = ({ GameOnline }) => {
+const GameScreen = ({ GameOnline, inGame }) => {
   // Variables
-  const [inGame, setInGame] = useState(true);
   const [endGame, setEndGame] = useState(false);
   const [showQr, setShowQr] = useState(false);
   // Säilytä peli-istunnon id tilamuuttujassa
@@ -46,37 +44,93 @@ const GameScreen = ({ GameOnline }) => {
         },
         {
           text: "Kyllä",
-          onPress: async () => {
-            // Haetaan pelaaja databasesta "pelaajat"
-            const id = await AsyncStorage.getItem("@game");
-            const pelaajatRef = ref(
-              database,
-              `pelit/${id}/pelaajat/${auth.currentUser.uid}`
+          onPress: () => {
+            Alert.prompt(
+              "Syötä chippien rahallinen arvo",
+              "Syötä chippien rahallinen arvo",
+              [
+                {
+                  text: "Peruuta",
+                  onPress: () =>
+                    console.log("Chippien arvon syöttö peruutettu"),
+                  style: "cancel",
+                },
+                {
+                  text: "Vahvista",
+                  onPress: async (chipAmount) => {
+                    if (chipAmount !== "") {
+                      if (!isNaN(chipAmount)) {
+                        chipAmount = parseFloat(chipAmount);
+                        // Tehdään tallennukset
+                        // Haetaan pelaaja databasesta "pelaajat"
+                        const id = await AsyncStorage.getItem("@game");
+                        const pelaajatRef = ref(
+                          database,
+                          `pelit/${id}/pelaajat/${auth.currentUser.uid}`
+                        );
+                        const pelaajaSnap = await get(pelaajatRef);
+                        const pelaajaData = pelaajaSnap.val();
+
+                        // Siirretään pelaaja odotustilaan
+                        if (pelaajaData) {
+                          // Haetaan poistuneetPelaajat lista
+                          const poistuneetPelaajatRef = ref(
+                            database,
+                            `pelit/${id}/poistuneetPelaajat/${auth.currentUser.uid}/`
+                          );
+                          // Poista pelaaja "pelaajat" listasta
+                          await remove(pelaajatRef);
+                          // Lisää pelaaja "poistuneetPelaajat" listaan
+                          await set(poistuneetPelaajatRef, pelaajaData);
+                        }
+
+                        // Tallennetaan tiedot henkilökohtaiselle tietokannalle
+                        const userRef = ref(
+                          database,
+                          `kayttajat/${auth.currentUser.uid}`
+                        );
+                        const userSnap = await get(userRef);
+                        const peliHistoria = userSnap.val().peliHistoria || {};
+                        const personalBuyIn =
+                          gameSessionData.pelaajat[auth.currentUser.uid].buyIn;
+                        const profit = chipAmount - personalBuyIn;
+                        const newPeliHistoria = {
+                          ...peliHistoria,
+                          [id]: {
+                            pelinAika: new Date().toISOString(),
+                            profit: profit,
+                          },
+                        };
+                        await update(userRef, {
+                          peliHistoria: newPeliHistoria,
+                        });
+
+                        setEndGame(true);
+                      } else {
+                        Alert.alert(
+                          "Virhe",
+                          "Syötä kelvollinen numeromuotoinen arvo chippien rahalliselle arvolle."
+                        );
+                      }
+                    } else {
+                      Alert.alert(
+                        "Virhe",
+                        "Chippien rahallinen arvo ei voi olla tyhjä."
+                      );
+                    }
+                  },
+                },
+              ]
             );
-            const pelaajaSnap = await get(pelaajatRef);
-            const pelaajaData = pelaajaSnap.val();
-
-            // Siirretään pelaaja odotustilaan
-            if (pelaajaData) {
-              // Haetaan poistuneetPelaajat lista
-              const poistuneetPelaajatRef = ref(
-                database,
-                `pelit/${sessionId}/poistuneetPelaajat/${auth.currentUser.uid}/`
-              );
-              // Poista pelaaja "pelaajat" listasta
-              await remove(pelaajatRef);
-              // Lisää pelaaja "poistuneetPelaajat" listaan
-              await set(poistuneetPelaajatRef, pelaajaData);
-            }
-
-            setInGame(false);
           },
         },
       ]
     );
   };
+
   // Poistu pelistä
   const leaveGame = () => {
+    // Tehdään pelaajan tallennukset ennen kuin siirretään pelaaja takaisin aloitus näkymään
     // AsyncStorage
     AsyncStorage.removeItem("@game");
     GameOnline(null);
@@ -144,7 +198,7 @@ const GameScreen = ({ GameOnline }) => {
             // Päivitetään paikallinen
             setGameSessionData((prev) => ({
               ...prev,
-              kokonaisRahamaara: newKokonaisRahamaara,
+              kokonaisRahamaara: prev.kokonaisRahamaara,
             }));
           },
         },
@@ -360,7 +414,7 @@ const GameScreen = ({ GameOnline }) => {
           <Text style={{ fontSize: 20 }}>Pelaajat</Text>
           <Text>Buy In</Text>
         </View>
-        <ScrollView>
+        <ScrollView keyExtractor={(item, index) => index.toString()}>
           {/* Aktiiviset pelaajat */}
           {gameSessionData &&
             gameSessionData.pelaajat &&
@@ -446,7 +500,7 @@ const GameScreen = ({ GameOnline }) => {
             <>
               <TouchableOpacity
                 style={{
-                  borderWidth: "2px",
+                  borderWidth: 2,
                   borderColor: "black",
                   paddingHorizontal: 20,
                   paddingVertical: 10,
@@ -461,7 +515,7 @@ const GameScreen = ({ GameOnline }) => {
             <>
               <TouchableOpacity
                 style={{
-                  borderWidth: "2px",
+                  borderWidth: 2,
                   borderColor: "black",
                   paddingHorizontal: 20,
                   paddingVertical: 10,

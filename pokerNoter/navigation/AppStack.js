@@ -15,21 +15,32 @@ import { MaterialCommunityIcons } from "react-native-vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 // Alert
 import { Alert } from "react-native";
-
+// Firebase
+import { database, auth } from "../config/firebaseConfig";
+import { ref, get } from "firebase/database";
 const AppStack = () => {
   const [gameOnline, setGameOnline] = useState(null);
+  const [inGame, setInGame] = useState(true);
+  // Tarkistetaan onko pelaaja liittynyt jo peliin.
+  const CheckStatus = async () => {
+    const sessionID = await AsyncStorage.getItem("@game").catch((err) =>
+      Alert.alert("Virhe", err)
+    );
+    if (sessionID) {
+      setGameOnline(sessionID);
+    }
 
-  // Check if the user already in the online
+    // Tarkistetaan onko pelaaja vielä osa peliä vai onko hän vain tarkkailija
+    const sessionRef = ref(database, `pelit/${sessionID}/pelaajat`);
+    const snapshot = await get(sessionRef);
+    const pelaaja = snapshot.val();
+    if (!pelaaja || !pelaaja[auth.currentUser.uid]) {
+      setInGame(false);
+    }
+  };
+
   useEffect(() => {
-    AsyncStorage.getItem("@game")
-      .then((gameId) => {
-        if (gameId) {
-          setGameOnline(gameId);
-        }
-      })
-      .catch((err) => {
-        Alert.alert("Virhe", err.message);
-      });
+    CheckStatus();
   }, []);
 
   return (
@@ -91,7 +102,7 @@ const AppStack = () => {
         </>
       ) : (
         <>
-          {gameOnline ? (
+          {inGame ? (
             <>
               <Tab.Screen
                 name="Game"
@@ -108,7 +119,9 @@ const AppStack = () => {
                   tabBarShowLabel: false,
                 }}
               >
-                {() => <GameScreen GameOnline={setGameOnline} />}
+                {() => (
+                  <GameScreen GameOnline={setGameOnline} inGame={setInGame} />
+                )}
               </Tab.Screen>
 
               <Tab.Screen
@@ -146,7 +159,9 @@ const AppStack = () => {
                   tabBarShowLabel: false,
                 }}
               >
-                {() => <GameScreen GameOnline={setGameOnline} />}
+                {() => (
+                  <GameScreen GameOnline={setGameOnline} inGame={setInGame} />
+                )}
               </Tab.Screen>
             </>
           )}
