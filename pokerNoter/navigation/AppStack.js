@@ -8,6 +8,7 @@ import HubScreen from "../screens/HubScreen";
 import StatisticsScreen from "../screens/StatisticsScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import GameScreen from "../screens/GameScreen";
+import TransferScreen from "../screens/TransferScreen";
 // Icons
 import { MaterialCommunityIcons } from "react-native-vector-icons";
 // AsyncStorage
@@ -90,23 +91,65 @@ const AppStack = () => {
         </>
       ) : (
         <>
-          <Tab.Screen
-            name="Game"
-            options={{
-              tabBarIcon: ({ size }) => (
-                <MaterialCommunityIcons
-                  name="poker-chip"
-                  size={size}
-                  color="white"
-                />
-              ),
-              tabBarStyle: { backgroundColor: "#212A3E" },
-              tabBarLabelStyle: { color: "white" },
-              tabBarShowLabel: false,
-            }}
-          >
-            {() => <GameScreen GameOnline={setGameOnline} />}
-          </Tab.Screen>
+          {gameOnline ? (
+            <>
+              <Tab.Screen
+                name="Game"
+                options={{
+                  tabBarIcon: ({ size }) => (
+                    <MaterialCommunityIcons
+                      name="poker-chip"
+                      size={size}
+                      color="white"
+                    />
+                  ),
+                  tabBarStyle: { backgroundColor: "#212A3E" },
+                  tabBarLabelStyle: { color: "white" },
+                  tabBarShowLabel: false,
+                }}
+              >
+                {() => <GameScreen GameOnline={setGameOnline} />}
+              </Tab.Screen>
+
+              <Tab.Screen
+                name="Transfer"
+                options={{
+                  tabBarIcon: ({ size }) => (
+                    <MaterialCommunityIcons
+                      name="transfer"
+                      size={size}
+                      color="white"
+                    />
+                  ),
+                  tabBarStyle: { backgroundColor: "#212A3E" },
+                  tabBarLabelStyle: { color: "white" },
+                  tabBarShowLabel: false,
+                }}
+              >
+                {() => <TransferScreen />}
+              </Tab.Screen>
+            </>
+          ) : (
+            <>
+              <Tab.Screen
+                name="Game"
+                options={{
+                  tabBarIcon: ({ size }) => (
+                    <MaterialCommunityIcons
+                      name="poker-chip"
+                      size={size}
+                      color="white"
+                    />
+                  ),
+                  tabBarStyle: { backgroundColor: "#212A3E" },
+                  tabBarLabelStyle: { color: "white" },
+                  tabBarShowLabel: false,
+                }}
+              >
+                {() => <GameScreen GameOnline={setGameOnline} />}
+              </Tab.Screen>
+            </>
+          )}
         </>
       )}
     </Tab.Navigator>

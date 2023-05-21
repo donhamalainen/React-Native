@@ -9,10 +9,11 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 // ID GENERATION
 import { generate } from "shortid";
-
+// QR Scanner
+import { BarCodeScanner } from "expo-barcode-scanner";
 // Firebase
 import { database, auth } from "../config/firebaseConfig";
 import { set, ref, get, child, update } from "firebase/database";
@@ -23,8 +24,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const HubScreen = ({ GameOnline }) => {
   const [sessionId, setSessionId] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState();
 
-  // Create session
+  // Create Session
   const createSession = async () => {
     // Generate a new session ID
     const newSessionId = generate();
@@ -59,6 +61,7 @@ const HubScreen = ({ GameOnline }) => {
         Alert.alert("Virhe", "Pelin luonnissa tapahtui virhe: " + err.message);
       });
   };
+  // Join Session
   const joinSession = async () => {
     if (sessionId != null) {
       const sessionRef = ref(database, "pelit/" + sessionId);
@@ -97,6 +100,45 @@ const HubScreen = ({ GameOnline }) => {
       Alert.alert("Virhe", "Istunnon ID ei ole kelvollinen");
     }
   };
+
+  // Handle QR-code
+  const handleBarCodeScanned = ({ data }) => {
+    setIsScanning(false);
+    setSessionId(data);
+    joinSession();
+  };
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await BarCodeScanner.requestPermissionsAsync();
+      setHasCameraPermission(status === "granted");
+    })();
+  }, []);
+
+  const requestCameraPermission = async () => {
+    const { status } = await BarCodeScanner.requestPermissionsAsync();
+    setHasCameraPermission(status === "granted");
+  };
+
+  useEffect(() => {
+    if (hasCameraPermission === false) {
+      Alert.alert(
+        "Kameran käyttöoikeus",
+        "Sovellus haluaa käyttää kameraasi QR-koodin lukemiseen, jotta peliin liittyminen olisi nopeampaa",
+        [
+          {
+            text: "Salli",
+            onPress: () => requestCameraPermission(),
+          },
+          {
+            text: "Kieltäydy",
+            onPress: () => console.log("Kameran käyttöoikeus evätty"),
+            style: "cancel",
+          },
+        ]
+      );
+    }
+  }, [hasCameraPermission]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>

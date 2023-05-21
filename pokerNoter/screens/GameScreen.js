@@ -2,65 +2,95 @@ import {
   View,
   Text,
   SafeAreaView,
-  TouchableWithoutFeedback,
-  Keyboard,
-  KeyboardAvoidingView,
   TouchableOpacity,
   ScrollView,
+  Alert,
+  Dimensions,
+  Modal,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-
+// Icons
+import { MaterialCommunityIcons } from "react-native-vector-icons";
+// QRCode
+import QRCode from "react-native-qrcode-svg";
 // AsyncStorage
 import AsyncStorage from "@react-native-async-storage/async-storage";
 // Firebase
 import { database, auth } from "../config/firebaseConfig";
-import { get, ref, remove, set, onValue, off } from "firebase/database";
+import { get, ref, remove, set, onValue, off, update } from "firebase/database";
 
 const GameScreen = ({ GameOnline }) => {
   // Variables
   const [inGame, setInGame] = useState(true);
   const [endGame, setEndGame] = useState(false);
+  const [showQr, setShowQr] = useState(false);
+  // Säilytä peli-istunnon id tilamuuttujassa
+  const [sessionId, setSessionId] = useState(null);
   // Peli-istunnon tiedot
   const [gameSessionData, setGameSessionData] = useState(null);
 
-  // Siirry odotustilaan
-  const goWaitingMode = async () => {
-    // Haetaan sessionId
-    const sessionId = await AsyncStorage.getItem("@game");
-    // Haetaan pelaaja databasesta "pelaajat"
-    const pelaajatRef = ref(
-      database,
-      `pelit/${sessionId}/pelaajat/${auth.currentUser.uid}`
-    );
-    const pelaajaSnap = await get(pelaajatRef);
-    const pelaajaData = pelaajaSnap.val();
-
-    // Siirretään pelaaja odotustilaan
-    if (pelaajaData) {
-      // Haetaan poistuneetPelaajat lista
-      const poistuneetPelaajatRef = ref(
-        database,
-        `pelit/${sessionId}/poistuneetPelaajat/${auth.currentUser.uid}/`
-      );
-      // Poista pelaaja "pelaajat" listasta
-      await remove(pelaajatRef);
-      // Lisää pelaaja "poistuneetPelaajat" listaan
-      await set(poistuneetPelaajatRef, pelaajaData);
-    }
-
-    setInGame(false);
+  // HandleShare
+  const HandleShare = async () => {
+    setShowQr(!showQr);
   };
+  // Siirry odotustilaan
+  const goWaitingMode = () => {
+    Alert.alert(
+      "Vahvista",
+      "Olet poistumassa pöydästä, haluatko jatkaa? Muista että et voi enää liittyä takaisin",
+      [
+        {
+          text: "En",
+          onPress: () => console.log("Poistuminen peruutettu"),
+          style: "cancel",
+        },
+        {
+          text: "Kyllä",
+          onPress: async () => {
+            // Haetaan pelaaja databasesta "pelaajat"
+            const id = await AsyncStorage.getItem("@game");
+            const pelaajatRef = ref(
+              database,
+              `pelit/${id}/pelaajat/${auth.currentUser.uid}`
+            );
+            const pelaajaSnap = await get(pelaajatRef);
+            const pelaajaData = pelaajaSnap.val();
 
+            // Siirretään pelaaja odotustilaan
+            if (pelaajaData) {
+              // Haetaan poistuneetPelaajat lista
+              const poistuneetPelaajatRef = ref(
+                database,
+                `pelit/${sessionId}/poistuneetPelaajat/${auth.currentUser.uid}/`
+              );
+              // Poista pelaaja "pelaajat" listasta
+              await remove(pelaajatRef);
+              // Lisää pelaaja "poistuneetPelaajat" listaan
+              await set(poistuneetPelaajatRef, pelaajaData);
+            }
+
+            setInGame(false);
+          },
+        },
+      ]
+    );
+  };
+  // Poistu pelistä
   const leaveGame = () => {
     // AsyncStorage
     AsyncStorage.removeItem("@game");
     GameOnline(null);
   };
-
+  // Fetch session ID
+  const fetchSessionId = async () => {
+    const id = await AsyncStorage.getItem("@game");
+    setSessionId(id);
+  };
   // Tarkistetaan pelin lopetus mahdollisuus
   const checkEnd = async () => {
-    const sessionId = await AsyncStorage.getItem("@game");
-    const pelaajatRef = ref(database, `pelit/${sessionId}/pelaajat`);
+    // Haetaan data
+    const id = await AsyncStorage.getItem("@game");
+    const pelaajatRef = ref(database, `pelit/${id}/pelaajat`);
 
     onValue(pelaajatRef, (snap) => {
       const pelaajat = snap.val();
@@ -72,19 +102,62 @@ const GameScreen = ({ GameOnline }) => {
   };
 
   useEffect(() => {
+    fetchSessionId();
     checkEnd();
   }, [inGame]);
 
+  // Handle Buy In
+  const HandleBuyIn = (buyIn) => {
+    Alert.alert(
+      "Vahvista",
+      `Olet ottamassa lisää sisäänostoa ${buyIn}€ edestä, oletko varma tästä?`,
+      [
+        {
+          text: "En",
+          onPress: () => console.log("BuyIn peruutettu"),
+          style: "cancel",
+        },
+        {
+          text: "Kyllä",
+          onPress: async () => {
+            const id = await AsyncStorage.getItem("@game");
+            const pelaajatRef = ref(
+              database,
+              `pelit/${id}/pelaajat/${auth.currentUser.uid}`
+            );
+            const pelaajaSnap = await get(pelaajatRef);
+            const pelaajaData = pelaajaSnap.val();
+            // Lisätään buyIn tietokantaan
+            pelaajaData.buyIn += buyIn;
+            await update(pelaajatRef, pelaajaData);
+
+            // Päivitä kokonaisRahamaara tieto
+            const kokonaisRahamaaraRef = ref(
+              database,
+              `pelit/${sessionId}/kokonaisRahamaara`
+            );
+            const newKokonaisRahamaara =
+              (gameSessionData.kokonaisRahamaara || 0) + buyIn;
+
+            await set(kokonaisRahamaaraRef, newKokonaisRahamaara);
+
+            // Päivitetään paikallinen
+            setGameSessionData((prev) => ({
+              ...prev,
+              kokonaisRahamaara: newKokonaisRahamaara,
+            }));
+          },
+        },
+      ]
+    );
+  };
   // Päivitä peli-istunnon tiedot
   const updateGameSessionData = async () => {
-    const sessionId = await AsyncStorage.getItem("@game");
-    const gameSessionRef = ref(database, `pelit/${sessionId}`);
-    const listener = onValue(gameSessionRef, (snapshot) => {
+    const id = await AsyncStorage.getItem("@game");
+    const gameSessionRef = ref(database, `pelit/${id}`);
+    onValue(gameSessionRef, (snapshot) => {
       setGameSessionData(snapshot.val());
     });
-    return () => {
-      off(gameSessionRef, listener);
-    };
   };
 
   // Hae tiedot, kun komponentti ladataan ja päivitä niitä muutosten yhteydessä
@@ -103,11 +176,50 @@ const GameScreen = ({ GameOnline }) => {
             alignItems: "center",
           }}
         >
-          {/* Title */}
-          <Text style={{ fontSize: 20, fontWeight: "bold" }}>PokerNoter</Text>
-          {/* TIMER 
-           <Text style={{ fontSize: 14, fontWeight: "bold" }}>hh:mm:ss</Text>
-          */}
+          <View>
+            {/* Title */}
+            <Text style={{ fontSize: 20, fontWeight: "bold" }}>PokerNoter</Text>
+            {/* TIMER */}
+            <Text style={{ fontSize: 14, fontWeight: "light" }}>hh:mm:ss</Text>
+          </View>
+          {/* QR-koodi */}
+          <Modal
+            visible={showQr}
+            transparent={true}
+            onRequestClose={HandleShare}
+          >
+            <TouchableOpacity
+              style={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "rgba(0,0,0,0.5)",
+              }}
+              activeOpacity={1}
+              onPressOut={() => HandleShare()}
+            >
+              <View pointerEvents="none">
+                <QRCode
+                  value={sessionId}
+                  size={200} // muuta tämä koko haluamaksesi
+                  bgColor="black"
+                  fgColor="white"
+                />
+              </View>
+            </TouchableOpacity>
+          </Modal>
+
+          {/* Share BTN */}
+          <View style={{ flexDirection: "column", alignItems: "center" }}>
+            {/* QR-koodi */}
+            <TouchableOpacity onPress={() => HandleShare()}>
+              <MaterialCommunityIcons name="qrcode" size={40} color="black" />
+            </TouchableOpacity>
+            {/* ID */}
+            <Text style={{ fontSize: 12, fontWeight: "light" }}>
+              {sessionId}
+            </Text>
+          </View>
         </View>
         {/* Pöytä tiedot */}
         <View
@@ -141,7 +253,7 @@ const GameScreen = ({ GameOnline }) => {
                 color: "white",
               }}
             >
-              {gameSessionData
+              {gameSessionData && gameSessionData.pelaajat
                 ? Object.keys(gameSessionData.pelaajat).length
                 : 0}{" "}
               henkilöä
@@ -174,18 +286,65 @@ const GameScreen = ({ GameOnline }) => {
             </Text>
           </View>
         </View>
-
-        {/* Poistu pelistä painike */}
-        {endGame ? (
-          <TouchableOpacity onPress={() => leaveGame()}>
-            <Text style={{ fontSize: 18 }}>Poistu pelistä</Text>
+        {/* Pikanäppäimet Buy In:n ottamiseen Salkusta. */}
+        <Text style={{ fontSize: 16, marginTop: 10 }}>Lisää sisäänostoasi</Text>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginVertical: 10,
+            alignItems: "center",
+          }}
+        >
+          {/* 5e */}
+          <TouchableOpacity
+            onPress={() => HandleBuyIn(5)}
+            style={{
+              backgroundColor: "#F99B7D",
+              paddingHorizontal: 20,
+              paddingVertical: 10,
+              borderRadius: 10,
+            }}
+          >
+            <Text>5€</Text>
           </TouchableOpacity>
-        ) : (
-          <TouchableOpacity onPress={() => goWaitingMode()}>
-            <Text>Siirry odotustilaan</Text>
+          {/* 10e */}
+          <TouchableOpacity
+            onPress={() => HandleBuyIn(10)}
+            style={{
+              backgroundColor: "violet",
+              paddingHorizontal: 20,
+              paddingVertical: 10,
+              borderRadius: 10,
+            }}
+          >
+            <Text>10€</Text>
           </TouchableOpacity>
-        )}
-
+          {/* 20e */}
+          <TouchableOpacity
+            onPress={() => HandleBuyIn(20)}
+            style={{
+              backgroundColor: "#FFB84C",
+              paddingHorizontal: 20,
+              paddingVertical: 10,
+              borderRadius: 10,
+            }}
+          >
+            <Text>20€</Text>
+          </TouchableOpacity>
+          {/* 30e */}
+          <TouchableOpacity
+            onPress={() => HandleBuyIn(30)}
+            style={{
+              backgroundColor: "#1B9C85",
+              paddingHorizontal: 20,
+              paddingVertical: 10,
+              borderRadius: 10,
+            }}
+          >
+            <Text>30€</Text>
+          </TouchableOpacity>
+        </View>
         {/* Pelaaja lista */}
         <View
           style={{
@@ -273,6 +432,48 @@ const GameScreen = ({ GameOnline }) => {
               )
             )}
         </ScrollView>
+
+        {/* Poistu pelistä painike */}
+        <View
+          style={{
+            flexDirection: "row",
+            marginBottom: 10,
+            justifyContent: "flex-end",
+            alignItems: "center",
+          }}
+        >
+          {endGame ? (
+            <>
+              <TouchableOpacity
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "black",
+                  paddingHorizontal: 20,
+                  paddingVertical: 10,
+                  borderRadius: 10,
+                }}
+                onPress={() => leaveGame()}
+              >
+                <Text style={{ fontSize: 14 }}>Lopeta peli</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <TouchableOpacity
+                style={{
+                  borderWidth: "2px",
+                  borderColor: "black",
+                  paddingHorizontal: 20,
+                  paddingVertical: 10,
+                  borderRadius: 10,
+                }}
+                onPress={() => goWaitingMode()}
+              >
+                <Text style={{ fontSize: 14 }}>Poistu pöydästä</Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
       </View>
     </SafeAreaView>
   );
