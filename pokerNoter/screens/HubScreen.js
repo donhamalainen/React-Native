@@ -21,7 +21,7 @@ import { set, ref, get, child, update } from "firebase/database";
 // AsyncStorage
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const HubScreen = ({ GameOnline }) => {
+const HubScreen = ({ GameOnline, InGame }) => {
   const [sessionId, setSessionId] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState();
@@ -55,6 +55,7 @@ const HubScreen = ({ GameOnline }) => {
       .then(() => {
         // AsyncStorage
         AsyncStorage.setItem(`@game`, newSessionId);
+        InGame(true);
         GameOnline(newSessionId);
       })
       .catch((err) => {
@@ -92,6 +93,7 @@ const HubScreen = ({ GameOnline }) => {
         }
         // AsyncStorage
         AsyncStorage.setItem(`@game`, sessionId);
+        InGame(true);
         GameOnline(sessionId);
       } else {
         Alert.alert("Virhe", "Istuntoa ei löytynyt");

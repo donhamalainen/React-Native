@@ -36,12 +36,14 @@ const AppStack = () => {
     const pelaaja = snapshot.val();
     if (!pelaaja || !pelaaja[auth.currentUser.uid]) {
       setInGame(false);
+    } else {
+      setInGame(true);
     }
   };
 
   useEffect(() => {
     CheckStatus();
-  }, []);
+  }, [inGame]);
 
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
@@ -80,7 +82,7 @@ const AppStack = () => {
               tabBarShowLabel: false,
             }}
           >
-            {() => <HubScreen GameOnline={setGameOnline} />}
+            {() => <HubScreen GameOnline={setGameOnline} InGame={setInGame} />}
           </Tab.Screen>
           {/* PROFIILI */}
           <Tab.Screen

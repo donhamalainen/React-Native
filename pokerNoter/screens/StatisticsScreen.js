@@ -28,7 +28,7 @@ const StatisticsScreen = () => {
   // JOS pelejä on 0, niin näytetään oletusarvot
   if (pelatutPelit > 0) {
     voittoProsentti = ((voitetutPelit / pelatutPelit) * 100).toFixed(1);
-    isoinVoitto = Math.max(...profit);
+    isoinVoitto = Math.max(...profit).toFixed(1);
   } else {
     voittoProsentti = 100;
     isoinVoitto = 0;

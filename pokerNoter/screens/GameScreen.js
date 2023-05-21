@@ -106,6 +106,7 @@ const GameScreen = ({ GameOnline, inGame }) => {
                         });
 
                         setEndGame(true);
+                        inGame(false);
                       } else {
                         Alert.alert(
                           "Virhe",
@@ -158,7 +159,7 @@ const GameScreen = ({ GameOnline, inGame }) => {
   useEffect(() => {
     fetchSessionId();
     checkEnd();
-  }, [inGame]);
+  }, []);
 
   // Handle Buy In
   const HandleBuyIn = (buyIn) => {
