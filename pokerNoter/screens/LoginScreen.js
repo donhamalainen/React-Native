@@ -114,7 +114,7 @@ const LoginScreen = ({ navigation }) => {
               <TouchableOpacity
                 onPress={() => Login(email, password)}
                 style={{
-                  backgroundColor: "coral",
+                  backgroundColor: "#212A3E",
                   padding: 20,
                   borderRadius: 10,
                   marginBottom: 20,
@@ -144,7 +144,7 @@ const LoginScreen = ({ navigation }) => {
                 <TouchableOpacity
                   onPress={() => navigation.navigate("Register")}
                 >
-                  <Text style={{ color: "coral", fontWeight: "700" }}>
+                  <Text style={{ color: "#AC1010", fontWeight: "700" }}>
                     {" "}
                     Rekisteröidy
                   </Text>
