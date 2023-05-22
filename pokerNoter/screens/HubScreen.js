@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 // ID GENERATION
 import { generate } from "shortid";
 // QR Scanner
@@ -102,45 +102,6 @@ const HubScreen = ({ GameOnline, InGame }) => {
       Alert.alert("Virhe", "Istunnon ID ei ole kelvollinen");
     }
   };
-
-  // Handle QR-code
-  const handleBarCodeScanned = ({ data }) => {
-    setIsScanning(false);
-    setSessionId(data);
-    joinSession();
-  };
-
-  useEffect(() => {
-    (async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
-      setHasCameraPermission(status === "granted");
-    })();
-  }, []);
-
-  const requestCameraPermission = async () => {
-    const { status } = await BarCodeScanner.requestPermissionsAsync();
-    setHasCameraPermission(status === "granted");
-  };
-
-  useEffect(() => {
-    if (hasCameraPermission === false) {
-      Alert.alert(
-        "Kameran käyttöoikeus",
-        "Sovellus haluaa käyttää kameraasi QR-koodin lukemiseen, jotta peliin liittyminen olisi nopeampaa",
-        [
-          {
-            text: "Salli",
-            onPress: () => requestCameraPermission(),
-          },
-          {
-            text: "Kieltäydy",
-            onPress: () => console.log("Kameran käyttöoikeus evätty"),
-            style: "cancel",
-          },
-        ]
-      );
-    }
-  }, [hasCameraPermission]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>

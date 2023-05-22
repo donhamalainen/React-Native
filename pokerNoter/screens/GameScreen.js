@@ -5,9 +5,11 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Platform,
   Modal,
 } from "react-native";
 import React, { useEffect, useState } from "react";
+import Dialog from "react-native-dialog";
 // Icons
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 // QRCode
@@ -22,6 +24,8 @@ const GameScreen = ({ GameOnline, inGame }) => {
   // Variables
   const [endGame, setEndGame] = useState(false);
   const [showQr, setShowQr] = useState(false);
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [chipAmount, setChipAmount] = useState(null);
   // Säilytä peli-istunnon id tilamuuttujassa
   const [sessionId, setSessionId] = useState(null);
   // Peli-istunnon tiedot
@@ -45,90 +49,154 @@ const GameScreen = ({ GameOnline, inGame }) => {
         {
           text: "Kyllä",
           onPress: () => {
-            Alert.prompt(
-              "Syötä chippien rahallinen arvo",
-              "Syötä chippien rahallinen arvo",
-              [
-                {
-                  text: "Peruuta",
-                  onPress: () =>
-                    console.log("Chippien arvon syöttö peruutettu"),
-                  style: "cancel",
-                },
-                {
-                  text: "Vahvista",
-                  onPress: async (chipAmount) => {
-                    if (chipAmount !== "") {
-                      if (!isNaN(chipAmount)) {
-                        chipAmount = parseFloat(chipAmount);
-                        // Tehdään tallennukset
-                        // Haetaan pelaaja databasesta "pelaajat"
-                        const id = await AsyncStorage.getItem("@game");
-                        const pelaajatRef = ref(
-                          database,
-                          `pelit/${id}/pelaajat/${auth.currentUser.uid}`
-                        );
-                        const pelaajaSnap = await get(pelaajatRef);
-                        const pelaajaData = pelaajaSnap.val();
-
-                        // Siirretään pelaaja odotustilaan
-                        if (pelaajaData) {
-                          // Haetaan poistuneetPelaajat lista
-                          const poistuneetPelaajatRef = ref(
+            if (Platform.OS === "android") {
+              setDialogVisible(true);
+            } else {
+              Alert.prompt(
+                "Syötä chippien rahallinen arvo",
+                "Syötä chippien rahallinen arvo",
+                [
+                  {
+                    text: "Peruuta",
+                    onPress: () =>
+                      console.log("Chippien arvon syöttö peruutettu"),
+                    style: "cancel",
+                  },
+                  {
+                    text: "Vahvista",
+                    onPress: async (amount) => {
+                      if (amount !== "") {
+                        if (!isNaN(amount)) {
+                          amount = parseFloat(amount);
+                          // Tehdään tallennukset
+                          // Haetaan pelaaja databasesta "pelaajat"
+                          const id = await AsyncStorage.getItem("@game");
+                          const pelaajatRef = ref(
                             database,
-                            `pelit/${id}/poistuneetPelaajat/${auth.currentUser.uid}/`
+                            `pelit/${id}/pelaajat/${auth.currentUser.uid}`
                           );
-                          // Poista pelaaja "pelaajat" listasta
-                          await remove(pelaajatRef);
-                          // Lisää pelaaja "poistuneetPelaajat" listaan
-                          await set(poistuneetPelaajatRef, pelaajaData);
+                          const pelaajaSnap = await get(pelaajatRef);
+                          const pelaajaData = pelaajaSnap.val();
+
+                          // Siirretään pelaaja odotustilaan
+                          if (pelaajaData) {
+                            // Haetaan poistuneetPelaajat lista
+                            const poistuneetPelaajatRef = ref(
+                              database,
+                              `pelit/${id}/poistuneetPelaajat/${auth.currentUser.uid}/`
+                            );
+                            // Poista pelaaja "pelaajat" listasta
+                            await remove(pelaajatRef);
+                            // Lisää pelaaja "poistuneetPelaajat" listaan
+                            await set(poistuneetPelaajatRef, pelaajaData);
+                          }
+
+                          // Tallennetaan tiedot henkilökohtaiselle tietokannalle
+                          const userRef = ref(
+                            database,
+                            `kayttajat/${auth.currentUser.uid}`
+                          );
+                          const userSnap = await get(userRef);
+                          const peliHistoria =
+                            userSnap.val().peliHistoria || {};
+                          const personalBuyIn =
+                            gameSessionData.pelaajat[auth.currentUser.uid]
+                              .buyIn;
+                          const profit = amount - personalBuyIn;
+                          const newPeliHistoria = {
+                            ...peliHistoria,
+                            [id]: {
+                              pelinAika: new Date().toISOString(),
+                              profit: profit,
+                            },
+                          };
+                          await update(userRef, {
+                            peliHistoria: newPeliHistoria,
+                          });
+
+                          setEndGame(true);
+                          inGame(false);
+                        } else {
+                          Alert.alert(
+                            "Virhe",
+                            "Syötä kelvollinen numeromuotoinen arvo chippien rahalliselle arvolle."
+                          );
                         }
-
-                        // Tallennetaan tiedot henkilökohtaiselle tietokannalle
-                        const userRef = ref(
-                          database,
-                          `kayttajat/${auth.currentUser.uid}`
-                        );
-                        const userSnap = await get(userRef);
-                        const peliHistoria = userSnap.val().peliHistoria || {};
-                        const personalBuyIn =
-                          gameSessionData.pelaajat[auth.currentUser.uid].buyIn;
-                        const profit = chipAmount - personalBuyIn;
-                        const newPeliHistoria = {
-                          ...peliHistoria,
-                          [id]: {
-                            pelinAika: new Date().toISOString(),
-                            profit: profit,
-                          },
-                        };
-                        await update(userRef, {
-                          peliHistoria: newPeliHistoria,
-                        });
-
-                        setEndGame(true);
-                        inGame(false);
                       } else {
                         Alert.alert(
                           "Virhe",
-                          "Syötä kelvollinen numeromuotoinen arvo chippien rahalliselle arvolle."
+                          "Chippien rahallinen arvo ei voi olla tyhjä."
                         );
                       }
-                    } else {
-                      Alert.alert(
-                        "Virhe",
-                        "Chippien rahallinen arvo ei voi olla tyhjä."
-                      );
-                    }
+                    },
                   },
-                },
-              ]
-            );
+                ]
+              );
+            }
           },
         },
       ]
     );
   };
+  // Handle goWaiting fro Android
+  const HandleAndroidWaiting = async () => {
+    if (chipAmount !== null) {
+      if (!isNaN(chipAmount)) {
+        let parsetChipAmount = parseFloat(chipAmount);
+        // Tehdään tallennukset
+        // Haetaan pelaaja databasesta "pelaajat"
+        const id = await AsyncStorage.getItem("@game");
+        const pelaajatRef = ref(
+          database,
+          `pelit/${id}/pelaajat/${auth.currentUser.uid}`
+        );
+        const pelaajaSnap = await get(pelaajatRef);
+        const pelaajaData = pelaajaSnap.val();
 
+        // Siirretään pelaaja odotustilaan
+        if (pelaajaData) {
+          // Haetaan poistuneetPelaajat lista
+          const poistuneetPelaajatRef = ref(
+            database,
+            `pelit/${id}/poistuneetPelaajat/${auth.currentUser.uid}/`
+          );
+          // Poista pelaaja "pelaajat" listasta
+          await remove(pelaajatRef);
+          // Lisää pelaaja "poistuneetPelaajat" listaan
+          await set(poistuneetPelaajatRef, pelaajaData);
+        }
+
+        // Tallennetaan tiedot henkilökohtaiselle tietokannalle
+        const userRef = ref(database, `kayttajat/${auth.currentUser.uid}`);
+        const userSnap = await get(userRef);
+        const peliHistoria = userSnap.val().peliHistoria || {};
+        const personalBuyIn =
+          gameSessionData.pelaajat[auth.currentUser.uid].buyIn;
+        const profit = parsetChipAmount - personalBuyIn;
+        const newPeliHistoria = {
+          ...peliHistoria,
+          [id]: {
+            pelinAika: new Date().toISOString(),
+            profit: profit,
+          },
+        };
+        await update(userRef, {
+          peliHistoria: newPeliHistoria,
+        });
+
+        setEndGame(true);
+        inGame(false);
+        setDialogVisible(false);
+      } else {
+        Alert.alert(
+          "Virhe",
+          "Syötä kelvollinen numeromuotoinen arvo chippien rahalliselle arvolle."
+        );
+      }
+    } else {
+      Alert.alert("Virhe", "Chippien rahallinen arvo ei voi olla tyhjä.");
+    }
+  };
   // Poistu pelistä
   const leaveGame = () => {
     // Tehdään pelaajan tallennukset ennen kuin siirretään pelaaja takaisin aloitus näkymään
@@ -487,7 +555,19 @@ const GameScreen = ({ GameOnline, inGame }) => {
               )
             )}
         </ScrollView>
-
+        {/* Chippien syöttö android */}
+        <Dialog.Container visible={dialogVisible}>
+          <Dialog.Title>Syötä chippien rahallinen arvo</Dialog.Title>
+          <Dialog.Input onChangeText={(value) => setChipAmount(value)} />
+          <Dialog.Button
+            label="Peruuta"
+            onPress={() => setDialogVisible(false)}
+          />
+          <Dialog.Button
+            label="Vahvista"
+            onPress={() => HandleAndroidWaiting()}
+          />
+        </Dialog.Container>
         {/* Poistu pelistä painike */}
         <View
           style={{

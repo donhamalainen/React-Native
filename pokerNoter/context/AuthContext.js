@@ -20,13 +20,20 @@ export const AuthProvider = ({ children }) => {
   const [userToken, setUserToken] = useState(null);
   const [data, setData] = useState(null);
 
-  const fetchData = async (uid) => {
+  const fetchData = (uid) => {
     const dataRef = ref(database, `kayttajat/${uid}`);
-    onValue(dataRef, (snap) => {
-      const data = snap.val();
-      //console.log(Object.values(data));
-      setData(data);
-    });
+    onValue(
+      dataRef,
+      (snap) => {
+        const data = snap.val();
+        setData(data);
+        setIsLoading(false);
+      },
+      (error) => {
+        console.error(error);
+        setIsLoading(false);
+      }
+    );
   };
 
   // isLoggedIn
@@ -39,8 +46,8 @@ export const AuthProvider = ({ children }) => {
       } else {
         setUserToken(null);
         setData(null);
+        setIsLoading(false);
       }
-      setIsLoading(false);
     });
   };
 

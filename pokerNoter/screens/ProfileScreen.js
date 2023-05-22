@@ -1,12 +1,4 @@
-import {
-  View,
-  Text,
-  SafeAreaView,
-  TouchableWithoutFeedback,
-  Keyboard,
-  KeyboardAvoidingView,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, SafeAreaView, TouchableOpacity } from "react-native";
 import React, { useContext } from "react";
 // CONTEXT
 import { AuthContext } from "../context/AuthContext";
@@ -20,7 +12,7 @@ const ProfileScreen = () => {
         <View>
           <Text style={{ fontSize: 18 }}>Tervehdys</Text>
           <Text style={{ fontSize: 28, fontWeight: "bold" }}>
-            {data.nimi}🔥
+            {data.nimi || "Pelaaja 1337"}🔥
           </Text>
         </View>
 

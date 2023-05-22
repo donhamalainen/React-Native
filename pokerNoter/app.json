@@ -13,17 +13,15 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true,
-      "infoPlist": {
-        "NSCameraUsageDescription": "This app uses the camera to scan QR codes."
-      }
+      "supportsTablet": true
     },
     "android": {
+      "package": "com.pokerNoter",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "permissions": ["CAMERA"]
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -36,7 +34,10 @@
       "STORAGE_BUCKET": "pokernoter-e7f51.appspot.com",
       "MSI": "1025585708715",
       "APPID": "1:1025585708715:web:b634dd70a3a71efbdcc1ee",
-      "MEASUREMENT_ID": "G-G8HZDL350F"
+      "MEASUREMENT_ID": "G-G8HZDL350F",
+      "eas": {
+        "projectId": "8942db2d-9737-408f-8427-bf21c814c3c4"
+      }
     }
   }
 }
