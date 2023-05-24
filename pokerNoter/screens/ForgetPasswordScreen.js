@@ -35,7 +35,7 @@ const ForgetPasswordScreen = ({ navigation }) => {
             }}
           >
             {/* LOTTIE */}
-            <View style={{ flex: 1.5, justifyContent: "center" }}>
+            <View style={{ flex: 1, justifyContent: "center" }}>
               <LottieView
                 source={require("../assets/animations/resetPassword.json")}
                 autoPlay
@@ -49,7 +49,7 @@ const ForgetPasswordScreen = ({ navigation }) => {
             </View>
 
             {/* UNOHTUIKO SALASANA? */}
-            <View style={{ flex: 0.5 }}>
+            <View>
               <Text
                 style={{
                   fontSize: 28,
@@ -64,24 +64,26 @@ const ForgetPasswordScreen = ({ navigation }) => {
               <TextInput
                 style={styles.input}
                 value={email}
-                onChangeText={(email) => setEmail(email)}
+                onChangeText={(text) => setEmail(text)}
                 autoCorrect={false}
                 placeholder="Syötä sähköpostiosoite"
                 autoCapitalize="none"
                 textContentType="emailAddress"
                 keyboardType="email-address"
+                underlineColorAndroid="transparent" // Android only: remove bottom line in Android
+                returnKeyType="done" // adds "done" button in iOS keyboard
               />
             </View>
 
             {/* PAINIKKEET */}
-            <View style={{ flex: 2, justifyContent: "flex-end" }}>
+            <View style={{ flex: 1, justifyContent: "flex-end" }}>
               {/* Reset-painike */}
               <TouchableOpacity
                 onPress={() =>
                   resetPassword(email).then(() => navigation.goBack())
                 }
                 style={{
-                  backgroundColor: "coral",
+                  backgroundColor: "#212A3E",
                   padding: 20,
                   borderRadius: 10,
                   marginBottom: 20,
@@ -109,7 +111,7 @@ const ForgetPasswordScreen = ({ navigation }) => {
               >
                 <Text>Muistuiko salasana sittenkin?</Text>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                  <Text style={{ color: "coral", fontWeight: "700" }}>
+                  <Text style={{ color: "#AC1010", fontWeight: "700" }}>
                     {" "}
                     Kirjaudu
                   </Text>

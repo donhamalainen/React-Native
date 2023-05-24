@@ -231,49 +231,57 @@ const GameScreen = ({ GameOnline, inGame }) => {
 
   // Handle Buy In
   const HandleBuyIn = (buyIn) => {
-    Alert.alert(
-      "Vahvista",
-      `Olet ottamassa lisää sisäänostoa ${buyIn}€ edestä, oletko varma tästä?`,
-      [
-        {
-          text: "En",
-          onPress: () => console.log("BuyIn peruutettu"),
-          style: "cancel",
-        },
-        {
-          text: "Kyllä",
-          onPress: async () => {
-            const id = await AsyncStorage.getItem("@game");
-            const pelaajatRef = ref(
-              database,
-              `pelit/${id}/pelaajat/${auth.currentUser.uid}`
-            );
-            const pelaajaSnap = await get(pelaajatRef);
-            const pelaajaData = pelaajaSnap.val();
-            // Lisätään buyIn tietokantaan
-            pelaajaData.buyIn += buyIn;
-            await update(pelaajatRef, pelaajaData);
-
-            // Päivitä kokonaisRahamaara tieto
-            const kokonaisRahamaaraRef = ref(
-              database,
-              `pelit/${sessionId}/kokonaisRahamaara`
-            );
-            const newKokonaisRahamaara =
-              (gameSessionData.kokonaisRahamaara || 0) + buyIn;
-
-            await set(kokonaisRahamaaraRef, newKokonaisRahamaara);
-
-            // Päivitetään paikallinen
-            setGameSessionData((prev) => ({
-              ...prev,
-              kokonaisRahamaara: prev.kokonaisRahamaara,
-            }));
+    if (!endGame) {
+      Alert.alert(
+        "Vahvista",
+        `Olet ottamassa lisää sisäänostoa ${buyIn}€ edestä, oletko varma tästä?`,
+        [
+          {
+            text: "En",
+            onPress: () => console.log("BuyIn peruutettu"),
+            style: "cancel",
           },
-        },
-      ]
-    );
+          {
+            text: "Kyllä",
+            onPress: async () => {
+              const id = await AsyncStorage.getItem("@game");
+              const pelaajatRef = ref(
+                database,
+                `pelit/${id}/pelaajat/${auth.currentUser.uid}`
+              );
+              const pelaajaSnap = await get(pelaajatRef);
+              const pelaajaData = pelaajaSnap.val();
+              // Lisätään buyIn tietokantaan
+              pelaajaData.buyIn += buyIn;
+              await update(pelaajatRef, pelaajaData);
+
+              // Päivitä kokonaisRahamaara tieto
+              const kokonaisRahamaaraRef = ref(
+                database,
+                `pelit/${sessionId}/kokonaisRahamaara`
+              );
+              const newKokonaisRahamaara =
+                (gameSessionData.kokonaisRahamaara || 0) + buyIn;
+
+              await set(kokonaisRahamaaraRef, newKokonaisRahamaara);
+
+              // Päivitetään paikallinen
+              setGameSessionData((prev) => ({
+                ...prev,
+                kokonaisRahamaara: prev.kokonaisRahamaara,
+              }));
+            },
+          },
+        ]
+      );
+    } else {
+      Alert.alert(
+        "Hehe",
+        "Olet poistunut jo pelistä, et siis voi tehdä enää muutoksia mihinkään."
+      );
+    }
   };
+
   // Päivitä peli-istunnon tiedot
   const updateGameSessionData = async () => {
     const id = await AsyncStorage.getItem("@game");

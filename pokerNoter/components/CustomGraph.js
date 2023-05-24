@@ -84,8 +84,7 @@ const CustomGraph = ({ gameHistory }) => {
 
   const d3Line = line()
     .x((game, index) => xScale(index))
-    .y((game) => yScale(game.profit))
-    .curve(curveNatural);
+    .y((game) => yScale(game.profit));
 
   const path = d3Line(lastTenGames);
   return (
@@ -111,27 +110,23 @@ const CustomGraph = ({ gameHistory }) => {
         </Text>
         {lastTenGames.map((game, index) => (
           <Fragment key={index}>
-            {index === lastTenGames.length - 1 ? (
-              <>
-                <Circle
-                  cx={xScale(index)}
-                  cy={yScale(game.profit)}
-                  r="4"
-                  fill={game.profit >= 0 ? "green" : "red"}
-                />
-                <Text
-                  x={xScale(index)}
-                  y={yScale(game.profit) + 10}
-                  fontSize="12"
-                  textAnchor="start"
-                  alignmentBaseline="middle"
-                  fill={game.profit >= 0 ? "green" : "red"}
-                  fontWeight="bold"
-                >
-                  {game.profit.toFixed(1)}€
-                </Text>
-              </>
-            ) : null}
+            <Circle
+              cx={xScale(index)}
+              cy={yScale(game.profit)}
+              r="4"
+              fill={game.profit >= 0 ? "green" : "red"}
+            />
+            <Text
+              x={xScale(index)}
+              y={yScale(game.profit) + 10}
+              fontSize="12"
+              textAnchor="start"
+              alignmentBaseline="middle"
+              fill={game.profit >= 0 ? "green" : "red"}
+              fontWeight="bold"
+            >
+              {game.profit.toFixed(1)}€
+            </Text>
           </Fragment>
         ))}
         {yScale.ticks().map((tick) => (

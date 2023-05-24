@@ -128,6 +128,7 @@ const AppStack = () => {
 
               <Tab.Screen
                 name="Transfer"
+                component={TransferScreen}
                 options={{
                   tabBarIcon: ({ size }) => (
                     <MaterialCommunityIcons
@@ -140,9 +141,7 @@ const AppStack = () => {
                   tabBarLabelStyle: { color: "white" },
                   tabBarShowLabel: false,
                 }}
-              >
-                {() => <TransferScreen />}
-              </Tab.Screen>
+              />
             </>
           ) : (
             <>
