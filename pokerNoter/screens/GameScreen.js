@@ -565,17 +565,24 @@ const GameScreen = ({ GameOnline, inGame }) => {
         </ScrollView>
         {/* Chippien syöttö android */}
         <Dialog.Container visible={dialogVisible}>
-          <Dialog.Title>Syötä chippien rahallinen arvo</Dialog.Title>
+          <Dialog.Title
+            style={{ color: "black" }} // Lisää tähän haluamasi tekstin väri
+          >
+            Syötä chippien rahallinen arvo
+          </Dialog.Title>
           <Dialog.Input onChangeText={(value) => setChipAmount(value)} />
           <Dialog.Button
             label="Peruuta"
             onPress={() => setDialogVisible(false)}
+            textStyle={{ color: "black" }} // Lisää tähän haluamasi tekstin väri
           />
           <Dialog.Button
             label="Vahvista"
             onPress={() => HandleAndroidWaiting()}
+            textStyle={{ color: "black" }} // Lisää tähän haluamasi tekstin väri
           />
         </Dialog.Container>
+
         {/* Poistu pelistä painike */}
         <View
           style={{
