@@ -8,12 +8,13 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  Platform,
 } from "react-native";
 import React, { useState } from "react";
 // ID GENERATION
 import { generate } from "shortid";
 // QR Scanner
-import { BarCodeScanner } from "expo-barcode-scanner";
+// import { BarCodeScanner } from "expo-barcode-scanner";
 // Firebase
 import { database, auth } from "../config/firebaseConfig";
 import { set, ref, get, child, update } from "firebase/database";
